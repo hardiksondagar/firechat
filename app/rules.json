@@ -4,8 +4,17 @@
           ".read": "auth != null",
           "$user": {
             ".write": "auth.uid === $user && (!newData.exists() || newData.hasChildren())",
-            "name": {
-               ".validate": "newData.isString() && newData.val().length <= 2000"
+            "fist_name": {
+               ".validate": "newData.isString() && newData.val().length <= 200"
+            },
+            "last_name": {
+               ".validate": "newData.isString() && newData.val().length <= 200"
+            },
+            "username": {
+               ".validate": "newData.isString() && newData.val().length <= 200"
+            },
+            "email": {
+               ".validate": "newData.isString() && newData.val().length <=320"
             },
             "$other": {
                ".validate": false

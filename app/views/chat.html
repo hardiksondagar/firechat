@@ -1,17 +1,17 @@
 <div class="container">
 	<div class="row">
 		<p class="alert alert-danger" ng-show="err">{{err}}</p>
-		</div>
+	</div>
 	<div class="row">
 
 		<div class="conversation-wrap col-lg-4">
 			<div class="media conversation" ng-repeat="chat in chats | reverse" ng-click="$parent.selectChat(chat.$id);" ng-class="{'active':$parent.selected==chat.$id}">
 				<a class="pull-left" href="#">
-					<img class="media-object" alt="{{users[chat_members[chat.$id]].name}}" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=35&bg=f27373&txtclr=ffffff&txt={{users[chat_members[chat.$id]].name | limitTo:1}}&w=64&h=64">
+					<img class="media-object" alt="{{users[chat_members[chat.$id]].name}}" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=35&bg=f27373&txtclr=ffffff&txt={{ users[chat_members[chat.$id]].first_name | limitTo:1 | uppercase }}{{ users[chat_members[chat.$id]].last_name | limitTo:1 | uppercase}}&w=64&h=64">
 				</a>
 				<div class="media-body">
 					<h4 class="media-heading">
-						{{users[chat_members[chat.$id]].name}}
+						{{users[chat_members[chat.$id]].first_name | capitalize}} {{users[chat_members[chat.$id]].last_name | capitalize}}
 					</h4>
 				</div>
 			</div>
@@ -19,11 +19,11 @@
 			<label><small>Userlist [ Temporary to initiate chat ]</small></label>
 			<div class="media conversation" ng-repeat="user in listUsers | reverse" ng-click="$parent.initChat(user.$id);">
 				<a class="pull-left" href="#">
-					<img class="media-object" alt="64x64" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=25&bg=f27373&txtclr=ffffff&txt={{ user.name | limitTo:1}}&w=50&h=50">
+					<img class="media-object" alt="64x64" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=25&bg=f27373&txtclr=ffffff&txt={{ user.first_name | limitTo:1 | uppercase }}{{ user.last_name | limitTo:1 | uppercase}}&w=50&h=50">
 				</a>
 				<div class="media-body">
 					<h4 class="media-heading">
-						{{user.name}}
+						{{user.first_name | capitalize}} {{user.last_name | capitalize}}
 					</h4>
 				</div>
 			</div>
@@ -33,11 +33,12 @@
 			<div class="msg-wrap">
 				<div class="media msg" ng-repeat="message in messages">
 					<a class="pull-left" href="#">
-						<img class="media-object" alt="{{chat_members[selected].name}}" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=20&bg=f27373&txtclr=ffffff&txt={{users[message.uid].name| limitTo:1}}&w=50&h=50">
+						<img class="media-object" alt="{{chat_members[selected].name}}" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=20&bg=f27373&txtclr=ffffff&txt={{ users[message.uid].first_name | limitTo:1 | uppercase }}{{ users[message.uid].last_name | limitTo:1 | uppercase}}&w=50&h=50">
 					</a>
 					<div class="media-body">
 						<small class="pull-right time"><i class="fa fa-clock-o"></i> {{message.createdAt | date:'medium'}}</small>
-						<h5 class="media-heading">{{users[message.uid].name}}
+						<h5 class="media-heading">
+							{{users[message.uid].first_name | capitalize}} {{users[message.uid].last_name | capitalize}}
 						</h5>
 						<small>{{message.text}}</small>
 					</div>
