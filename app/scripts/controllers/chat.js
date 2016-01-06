@@ -16,8 +16,8 @@
   */
   $scope.chats= $firebaseArray(Ref.child('user-chats').child($scope.user.uid).orderByChild('modifiedAt').limitToLast(10));
 
-  /* $scope.chat_members stores uids of users that are part of chat */
-  $scope.chat_members=[];
+  /* $scope.chat_metas stores chat's details like person's name, last message, modified timestamp */
+  $scope.chat_metas=[];
   
   /* $scope.selected used to determine which chat is currently selected */
   $scope.selected=null;
@@ -41,17 +41,17 @@
 
     /* Get chat's members */
     var chat_members=$firebaseArray(Ref.child('chat-members').child(chat_id));
+    $scope.chat_metas[chat_id]={user:null,meta:null,lastMessage:null};
 
     /* Once chat's members loads fetch their user infos ( name and photo ) */
     chat_members.$loaded().then(function(chat_members){
-
 
       angular.forEach(chat_members, function(member, key) {
 
         /* set uid of user with logged in user is chatting */
         if(member.$id!==$scope.user.uid)
         {
-          $scope.chat_members[chat_id]=member.$id;
+          $scope.chat_metas[chat_id].user=member.$id;
         }
 
         /* Retrieve user's info */
@@ -60,9 +60,23 @@
         {
           $scope.users[user.$id]=user;
         });
-
       });
     });
+
+    /* Get chat meta data */
+    // var chat_meta = $firebaseObject(Ref.child('chat-metas').child(chat_id));
+    // chat_meta.$loaded().then(function(chat_meta)
+    // {
+    //   $scope.chat_metas[chat_id].meta=chat_meta;
+    // });
+
+    /* Get last chat message */
+    var chat_messages = $firebaseArray(Ref.child('chat-messages').child(chat_id).orderByChild('createdAt').limitToLast(1));
+    chat_messages.$loaded().then(function(chat_messages)
+    {
+      $scope.chat_metas[chat_id].lastMessage=chat_messages[0];
+    });
+
   }
 
   /* This function is use to select chat  */

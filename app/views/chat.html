@@ -7,12 +7,14 @@
 		<div class="conversation-wrap col-lg-4">
 			<div class="media conversation" ng-repeat="chat in chats | reverse" ng-click="$parent.selectChat(chat.$id);" ng-class="{'active':$parent.selected==chat.$id}" ng-init="$index==0 && !$parent.selected && $parent.selectChat(chat.$id)">
 				<a class="pull-left" href="#">
-					<img class="media-object" alt="{{users[chat_members[chat.$id]].name}}" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=35&bg=f27373&txtclr=ffffff&txt={{ users[chat_members[chat.$id]].first_name | limitTo:1 | uppercase }}{{ users[chat_members[chat.$id]].last_name | limitTo:1 | uppercase}}&w=64&h=64">
+					<img class="media-object" alt="{{users[chat_metas[chat.$id].user].name}}" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=35&bg=f27373&txtclr=ffffff&txt={{ users[chat_metas[chat.$id].user].first_name | limitTo:1 | uppercase }}{{ users[chat_metas[chat.$id].user].last_name | limitTo:1 | uppercase}}&w=64&h=64">
 				</a>
 				<div class="media-body">
 					<h4 class="media-heading">
-						{{users[chat_members[chat.$id]].first_name | capitalize}} {{users[chat_members[chat.$id]].last_name | capitalize}}
+						{{users[chat_metas[chat.$id].user].first_name | capitalize}} {{users[chat_metas[chat.$id].user].last_name | capitalize}}
 					</h4>
+					<small>{{chat_metas[chat.$id].lastMessage.text | limitTo:20}}</small>
+					<small class="pull-right">{{chat_metas[chat.$id].lastMessage.createdAt | date:'shortTime'}}</small>
 				</div>
 			</div>
 			<br>
