@@ -8,9 +8,9 @@
  */
  angular.module('chatApp')
  .controller('LoginCtrl', function ($scope, Auth, $location, $q, Ref, $timeout) {
-  $scope.passwordLogin = function(email, pass) {
+  $scope.passwordLogin = function(user) {
     $scope.err = null;
-    Auth.$authWithPassword({email: email, password: pass}, {rememberMe: true}).then(
+    Auth.$authWithPassword({email: user.email, password: user.pass}, {rememberMe: true}).then(
       redirect, showError
       );
   };

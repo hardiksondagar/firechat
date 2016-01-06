@@ -4,144 +4,184 @@
  * @name chatApp.controller:ChatCtrl
  * @description
  * # ChatCtrl
- * A demo of using AngularFire to manage a synchronized list.
  */
  angular.module('chatApp')
  .controller('ChatCtrl', function ($scope, user, Ref, $q, $firebaseArray, $firebaseObject, $timeout) {
-    // synchronize a read-only, synchronized array of messages, limit to most recent 10
 
-    $scope.user=user;
-    $scope.selected=null;
-    $scope.chat_members=[];
-    $scope.users=[];
-    $scope.listUsers=$firebaseArray(Ref.child('users').limitToLast(10));
-    
+  /* user from the route resolve, contains logged in users' data */
+  $scope.user=user;
+  
+  /* $scope.chats stores all the chats the logged in user part of ( it'll be sorted by modified time  
+  so latest chat will always comes on the top 
+  */
+  $scope.chats= $firebaseArray(Ref.child('user-chats').child($scope.user.uid).orderByChild('modifiedAt').limitToLast(10));
 
-    /* Load Chats */
-    $scope.chats= $firebaseArray(Ref.child('user-chats').child($scope.user.uid).orderByChild('modifiedAt').limitToLast(10));
+  /* $scope.chat_members stores uids of users that are part of chat */
+  $scope.chat_members=[];
+  
+  /* $scope.selected used to determine which chat is currently selected */
+  $scope.selected=null;
 
-    $scope.chats.$watch(function(event) {
-      $scope.getChatMeta(event.key);
+  /* $scop.users stores information about user's details and used in many place like showing name in chat list and in single chat's message body */
+  $scope.users=[];
+
+  /* [TEMPORARY TO INITIATE CONVERSATION] $scope.listUsers is list of users registered in system */
+  $scope.listUsers=$firebaseArray(Ref.child('users').limitToLast(10));
+
+
+  /* on chat list load fetch all the related details like chat's members, member's user details etc */
+  $scope.chats.$watch(function(event) {
+    $scope.loadChatDetails(event.key);
+  });
+
+
+  /* $scope.loadChatDetails fetchs the chat's meta data including chat's members, member's user info */
+  $scope.loadChatDetails=function(chat_id)
+  {
+
+    /* Get chat's members */
+    var chat_members=$firebaseArray(Ref.child('chat-members').child(chat_id));
+
+    /* Once chat's members loads fetch their user infos ( name and photo ) */
+    chat_members.$loaded().then(function(chat_members){
+
+
+      angular.forEach(chat_members, function(member, key) {
+
+        /* set uid of user with logged in user is chatting */
+        if(member.$id!==$scope.user.uid)
+        {
+          $scope.chat_members[chat_id]=member.$id;
+        }
+
+        /* Retrieve user's info */
+        var user = $firebaseObject(Ref.child('users').child(member.$id));
+        user.$loaded().then(function(user)
+        {
+          $scope.users[user.$id]=user;
+        });
+
+      });
     });
-    
-    $scope.getChatMeta=function(chat_id)
+  }
+
+  /* This function is use to select chat  */
+  $scope.selectChat = function(chat_id)
+  {
+    /* store selected chat id */
+    $scope.selected=chat_id;
+
+    /* fetch messages of selected chat */
+    $scope.messages=$firebaseArray(Ref.child('chat-messages').child(chat_id).orderByChild('createdAt').limitToLast(10));
+    $scope.messages.$loaded().catch(alert);
+  }
+
+  /* [MAGIC] To enable one to one chat this functions generates chat_id from the chat's members's uid */
+  /* http://stackoverflow.com/questions/33540479/best-way-to-manage-chat-channels-in-firebase/33547123#33547123 */
+  $scope.getChatId=function(user1,user2)
+  {
+    var chat_id;
+    if(user1>user2)
     {
-      var chat_members=$firebaseArray(Ref.child('chat-members').child(chat_id));
+      chat_id='chat-'+user1+user2;
+    }
+    else {
+      chat_id='chat-'+user2+user1;
+    }
+    return chat_id;
+  }
 
-      /* Once uid loaded, get user details associated with the uid */
-      chat_members.$loaded().then(function(chat_members){
+  /* To send message to chat */
+  $scope.sendMessage = function(newMessage,chat_id) {
+    if( newMessage && chat_id ) {
 
-        angular.forEach(chat_members, function(member, key) {
-          if(member.$id!==$scope.user.uid)
-          {
-            $scope.chat_members[chat_id]=member.$id;
-          }
+      /* Get reference to chat-messages by chat_id */
+      var ref = Ref.child('chat-messages').child(chat_id);
 
-          var user = $firebaseObject(Ref.child('users').child(member.$id));
-          user.$loaded().then(function(user)
-          {
-            $scope.users[user.$id]=user;
-          });
-
-        });
+      /* Save message along with creation timestamp and send's uid */
+      var message= { 
+        text:newMessage,
+        createdAt:Firebase.ServerValue.TIMESTAMP,
+        uid:$scope.user.uid 
+      };
+      ref.push(message, function(err) {
+        /* On success updated chat's modified time to order chats modification time */
+        $scope.updateModifiedAt(chat_id);
       });
     }
+  };
 
-    
-    $scope.selectChat = function(chat_id)
-    {
-      $scope.selected=chat_id;
-      $scope.messages=$firebaseArray(Ref.child('chat-messages').child(chat_id).orderByChild('createdAt').limitToLast(10));
-      $scope.messages.$loaded().catch(alert);
-    }
+  /* This function updates the chat's last modification timestamp */
+  $scope.updateModifiedAt=function(chat_id)
+  { 
 
-    $scope.getChatId=function(user1,user2)
-    {
-      var chat_id;
-      if(user1>user2)
-      {
-        chat_id='chat-'+user1+user2;
-      }
-      else {
-        chat_id='chat-'+user2+user1;
-      }
-      return chat_id;
-    }
+    /* Get all members of chat */
+    var chat_members=$firebaseArray(Ref.child('chat-members').child(chat_id));
 
-    $scope.addMessage = function(newMessage,chat_id) {
-      if( newMessage && chat_id ) {
-        // var chat_id=$scope.getChatId(uid,$scope.user.uid);
-        var ref = Ref.child('chat-messages').child(chat_id), def = $q.defer();
-        var message= { 
-          text:newMessage,
-          createdAt:Firebase.ServerValue.TIMESTAMP,
-          uid:$scope.user.uid 
-        };
-        ref.push(message, function(err) {
-          $scope.updateModifiedAt(chat_id);
-        });
-      }
-    };
+    chat_members.$loaded().then(function(chat_members){
 
-    $scope.initChat = function(uid)
-    {
+      /* Updated each member's conversation's last modification time */
+      angular.forEach(chat_members, function(member, key) {
 
-      if($scope.user.uid==uid)
-      {
-        alert('Cannot chat with yourself');
-        return false;
-      }
-      var chat_id=$scope.getChatId(uid,$scope.user.uid);
-      var ref = Ref.child('user-chats').child($scope.user.uid).child(chat_id);
-      var chat= $firebaseObject(ref);
-      chat.$loaded().then(function(data)
-      {
-        var ref = Ref.child('user-chats').child($scope.user.uid).child(chat_id);
-        ref.set({
-          modifiedAt:Firebase.ServerValue.TIMESTAMP
-        });
-        
-        var ref = Ref.child('user-chats').child(uid).child(chat_id);
-        ref.set({
-          modifiedAt:Firebase.ServerValue.TIMESTAMP
-        });
-        
-        var ref = Ref.child('chat-metas').child(chat_id);
-        ref.set({
-          createdAt:Firebase.ServerValue.TIMESTAMP,
-          type:"1to1"
-        });
-
-        var ref = Ref.child('chat-members').child(chat_id);
-        ref.child(uid).set(true);
-        ref.child($scope.user.uid).set(true);
-
-        $scope.selectChat(chat_id);
-
-      });
-    }
-
-    $scope.updateModifiedAt=function(chat_id)
-    { 
-
-
-     var chat_members=$firebaseArray(Ref.child('chat-members').child(chat_id));
-
-     chat_members.$loaded().then(function(chat_members){
-
-       angular.forEach(chat_members, function(member, key) {
         var ref = Ref.child('user-chats').child(member.$id).child(chat_id);
         ref.set({
           modifiedAt:Firebase.ServerValue.TIMESTAMP
         });
 
       });
-     });
+    });
 
-     
-   }
+  }
 
-   function alert(msg) {
+  $scope.initChat = function(uid)
+  {
+
+    var message="Hi there";
+
+    if($scope.user.uid==uid)
+    {
+      alert('Cannot chat with yourself');
+      return false;
+    }
+    
+    var chat_id = $scope.getChatId(uid,$scope.user.uid);
+    if($scope.chats.$getRecord(chat_id))
+    {
+      alert('Chat already initiated');
+      $scope.selectChat(chat_id);
+      return;
+    }
+
+    var ref = Ref.child('user-chats').child($scope.user.uid).child(chat_id);
+    var chat= $firebaseObject(ref);
+    chat.$loaded().then(function(data)
+    {
+
+      /* store chat metas */
+      var ref = Ref.child('chat-metas').child(chat_id);
+      ref.set({
+        createdAt:Firebase.ServerValue.TIMESTAMP,
+        type:"1to1"
+      });
+
+      /* store members */
+      var ref = Ref.child('chat-members').child(chat_id);
+      /* member 1 */
+      ref.child(uid).set(true);
+      /* member 2 */
+      ref.child($scope.user.uid).set(true);
+      
+      /* and select initiated chat */
+      $scope.selectChat(chat_id);
+      
+      /* Send sample message to initiate the chat */
+      $scope.sendMessage(message,chat_id);
+
+    });
+  }
+
+  /* This function used to display error messages */
+  function alert(msg) {
     $scope.err = msg;
     $timeout(function() {
       $scope.err = null;

@@ -5,7 +5,7 @@
 	<div class="row">
 
 		<div class="conversation-wrap col-lg-4">
-			<div class="media conversation" ng-repeat="chat in chats | reverse" ng-click="$parent.selectChat(chat.$id);" ng-class="{'active':$parent.selected==chat.$id}">
+			<div class="media conversation" ng-repeat="chat in chats | reverse" ng-click="$parent.selectChat(chat.$id);" ng-class="{'active':$parent.selected==chat.$id}" ng-init="$index==0 && !$parent.selected && $parent.selectChat(chat.$id)">
 				<a class="pull-left" href="#">
 					<img class="media-object" alt="{{users[chat_members[chat.$id]].name}}" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=35&bg=f27373&txtclr=ffffff&txt={{ users[chat_members[chat.$id]].first_name | limitTo:1 | uppercase }}{{ users[chat_members[chat.$id]].last_name | limitTo:1 | uppercase}}&w=64&h=64">
 				</a>
@@ -16,7 +16,7 @@
 				</div>
 			</div>
 			<br>
-			<label><small>Userlist [ Temporary to initiate chat ]</small></label>
+			<label><small class="text-center">[TEMPORARY] Userlist to initiate chat</small></label>
 			<div class="media conversation" ng-repeat="user in listUsers | reverse" ng-click="$parent.initChat(user.$id);">
 				<a class="pull-left" href="#">
 					<img class="media-object" alt="64x64" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=25&bg=f27373&txtclr=ffffff&txt={{ user.first_name | limitTo:1 | uppercase }}{{ user.last_name | limitTo:1 | uppercase}}&w=50&h=50">
@@ -48,7 +48,7 @@
 				<textarea class="form-control send-message" rows="3" placeholder="Write a message..."  ng-model="newMessage"></textarea>
 			</div>
 			<div>
-				<button class="col-lg-4 text-right btn btn-info pull-right" role="button"  ng-click="selected && addMessage(newMessage,selected);newMessage = null;" ng-class="{'disabled':(!selected || !newMessage)}"><i class="fa fa-plus"></i> Send Message</button>
+				<button class="col-lg-4 text-right btn btn-info pull-right" role="button"  ng-click="selected && sendMessage(newMessage,selected);newMessage = null;" ng-class="{'disabled':(!selected || !newMessage)}"><i class="fa fa-plus"></i> Send Message</button>
 			</div>
 		</div>
 	</div>
