@@ -1,0 +1,54 @@
+<div class="container">
+	<div class="row">
+		<p class="alert alert-danger" ng-show="err">{{err}}</p>
+		</div>
+	<div class="row">
+
+		<div class="conversation-wrap col-lg-4">
+			<div class="media conversation" ng-repeat="chat in chats | reverse" ng-click="$parent.selectChat(chat.$id);" ng-class="{'active':$parent.selected==chat.$id}">
+				<a class="pull-left" href="#">
+					<img class="media-object" alt="{{users[chat_members[chat.$id]].name}}" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=35&bg=f27373&txtclr=ffffff&txt={{users[chat_members[chat.$id]].name | limitTo:1}}&w=64&h=64">
+				</a>
+				<div class="media-body">
+					<h4 class="media-heading">
+						{{users[chat_members[chat.$id]].name}}
+					</h4>
+				</div>
+			</div>
+			<br>
+			<label><small>Userlist [ Temporary to initiate chat ]</small></label>
+			<div class="media conversation" ng-repeat="user in listUsers | reverse" ng-click="$parent.initChat(user.$id);">
+				<a class="pull-left" href="#">
+					<img class="media-object" alt="64x64" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=25&bg=f27373&txtclr=ffffff&txt={{ user.name | limitTo:1}}&w=50&h=50">
+				</a>
+				<div class="media-body">
+					<h4 class="media-heading">
+						{{user.name}}
+					</h4>
+				</div>
+			</div>
+		</div>
+
+		<div class="message-wrap col-lg-8">
+			<div class="msg-wrap">
+				<div class="media msg" ng-repeat="message in messages">
+					<a class="pull-left" href="#">
+						<img class="media-object" alt="{{chat_members[selected].name}}" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=20&bg=f27373&txtclr=ffffff&txt={{users[message.uid].name| limitTo:1}}&w=50&h=50">
+					</a>
+					<div class="media-body">
+						<small class="pull-right time"><i class="fa fa-clock-o"></i> {{message.createdAt | date:'medium'}}</small>
+						<h5 class="media-heading">{{users[message.uid].name}}
+						</h5>
+						<small>{{message.text}}</small>
+					</div>
+				</div>
+			</div>
+			<div class="send-wrap ">
+				<textarea class="form-control send-message" rows="3" placeholder="Write a message..."  ng-model="newMessage"></textarea>
+			</div>
+			<div>
+				<button class="col-lg-4 text-right btn btn-info pull-right" role="button"  ng-click="selected && addMessage(newMessage,selected);newMessage = null;" ng-class="{'disabled':(!selected || !newMessage)}"><i class="fa fa-plus"></i> Send Message</button>
+			</div>
+		</div>
+	</div>
+</div>
