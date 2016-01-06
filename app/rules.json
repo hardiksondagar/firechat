@@ -1,0 +1,38 @@
+{
+  "rules": {
+     "users": {
+          ".read": "auth != null",
+          "$user": {
+            ".write": "auth.uid === $user && (!newData.exists() || newData.hasChildren())",
+            "name": {
+               ".validate": "newData.isString() && newData.val().length <= 2000"
+            },
+            "$other": {
+               ".validate": false
+            }
+         }
+    },
+    "chat-messages": {
+      ".read": "auth != null",
+      ".write":  "auth != null",
+      "$chatId": {
+          ".indexOn": ["createdAt"] 
+      }
+    },
+    "user-chats": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$chatId": {
+          ".indexOn": ["modifiedAt"] 
+      }
+    },
+    "chat-members": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "chat-metas": {
+      ".read":"auth != null",
+      ".write":"auth != null"
+    }
+  }
+}
