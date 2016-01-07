@@ -123,13 +123,47 @@ $scope.sendMessage = function(newMessage,chat_id) {
     var message= { 
       text:newMessage,
       createdAt:Firebase.ServerValue.TIMESTAMP,
-      uid:$scope.user.uid 
+      uid:$scope.user.uid,
+      file:null
     };
-    ref.push(message, function(err) {
-      /* On success updated chat's modified time to order chats modification time */
-      $scope.updateModifiedAt(chat_id);
-      $('.chat-message').scrollTop($('.chat-message')[0].scrollHeight);
-    });
+
+
+    /* Handle file thing */
+    var input = document.getElementById('file');
+    var f  = input.files[0];
+    if(typeof f != 'undefined') {
+      var reader = new FileReader();
+      reader.onload = (function(theFile) {
+        return function(e) {
+
+          if(f.size>=10485760)
+          {
+              alert('Cannot upload files with size more than 10MB');
+              return;
+          }
+
+          message.file={
+            payload:e.target.result,
+            name:f.name,
+            type:f.type,
+            size:f.size,
+            createdAt:Firebase.ServerValue.TIMESTAMP
+          };
+          ref.push(message, function(err) {
+            /* On success updated chat's modified time to order chats modification time */
+            $scope.updateModifiedAt(chat_id);
+            $('.chat-message').scrollTop($('.chat-message')[0].scrollHeight);
+          });
+        };
+      })(f);
+      reader.readAsDataURL(f);
+    } else {
+      ref.push(message, function(err) {
+        /* On success updated chat's modified time to order chats modification time */
+        $scope.updateModifiedAt(chat_id);
+        $('.chat-message').scrollTop($('.chat-message')[0].scrollHeight);
+      });
+    }
   }
 };
 

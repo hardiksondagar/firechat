@@ -20,7 +20,7 @@ html,body
 .chat-wrapper .col-lg-4, .chat-wrapper .col-lg-8
 {
 	padding:0;
-	height: 465px;
+	height: 470px;
 }
 
 .chat-wrapper .col-lg-4
@@ -125,16 +125,28 @@ html,body
 	border-radius: .3em;
 }
 
+.message-author-name
+{
+	/*font-weight: bold;*/
+	color:#777;
+	margin-bottom: 5px;
+}
+
 .message-body
 {
 	display: inline-block;
 	padding: .1em .5em;
-	border-radius: 1.5em;
+	border-radius: 1em;
 	text-shadow: 0 1px 1px white;
 	background-color: #F5F4F1;
 	border: 1px solid #CDCDCA;
 	box-shadow: 0 1px 1px 0 #CDCDCA;
 	overflow: hidden;
+}
+
+.message-file
+{
+	margin-bottom: 5px;
 }
 
 .text-right .message-body
