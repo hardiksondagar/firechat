@@ -70,135 +70,143 @@
     //   $scope.chat_metas[chat_id].meta=chat_meta;
     // });
 
-    /* Get last chat message */
-    var chat_messages = $firebaseArray(Ref.child('chat-messages').child(chat_id).orderByChild('createdAt').limitToLast(1));
-    chat_messages.$loaded().then(function(chat_messages)
-    {
-      $scope.chat_metas[chat_id].lastMessage=chat_messages[0];
-    });
+/* Get last chat message */
+var chat_messages = $firebaseArray(Ref.child('chat-messages').child(chat_id).orderByChild('createdAt').limitToLast(1));
+chat_messages.$loaded().then(function(chat_messages)
+{
+  $scope.chat_metas[chat_id].lastMessage=chat_messages[0];
+});
 
-  }
+}
 
-  /* This function is use to select chat  */
-  $scope.selectChat = function(chat_id)
+/* This function is use to select chat  */
+$scope.selectChat = function(chat_id)
+{
+  /* store selected chat id */
+  $scope.selected=chat_id;
+
+  /* fetch messages of selected chat */
+  $scope.messages=$firebaseArray(Ref.child('chat-messages').child(chat_id).orderByChild('createdAt').limitToLast(100));
+  $scope.messages.$loaded().then(function()
   {
-    /* store selected chat id */
-    $scope.selected=chat_id;
-
-    /* fetch messages of selected chat */
-    $scope.messages=$firebaseArray(Ref.child('chat-messages').child(chat_id).orderByChild('createdAt').limitToLast(10));
-    $scope.messages.$loaded().catch(alert);
-  }
-
-  /* [MAGIC] To enable one to one chat this functions generates chat_id from the chat's members's uid */
-  /* http://stackoverflow.com/questions/33540479/best-way-to-manage-chat-channels-in-firebase/33547123#33547123 */
-  $scope.getChatId=function(user1,user2)
-  {
-    var chat_id;
-    if(user1>user2)
-    {
-      chat_id='chat-'+user1+user2;
-    }
-    else {
-      chat_id='chat-'+user2+user1;
-    }
-    return chat_id;
-  }
-
-  /* To send message to chat */
-  $scope.sendMessage = function(newMessage,chat_id) {
-    if( newMessage && chat_id ) {
-
-      /* Get reference to chat-messages by chat_id */
-      var ref = Ref.child('chat-messages').child(chat_id);
-
-      /* Save message along with creation timestamp and send's uid */
-      var message= { 
-        text:newMessage,
-        createdAt:Firebase.ServerValue.TIMESTAMP,
-        uid:$scope.user.uid 
-      };
-      ref.push(message, function(err) {
-        /* On success updated chat's modified time to order chats modification time */
-        $scope.updateModifiedAt(chat_id);
-      });
-    }
-  };
-
-  /* This function updates the chat's last modification timestamp */
-  $scope.updateModifiedAt=function(chat_id)
-  { 
-
-    /* Get all members of chat */
-    var chat_members=$firebaseArray(Ref.child('chat-members').child(chat_id));
-
-    chat_members.$loaded().then(function(chat_members){
-
-      /* Updated each member's conversation's last modification time */
-      angular.forEach(chat_members, function(member, key) {
-
-        var ref = Ref.child('user-chats').child(member.$id).child(chat_id);
-        ref.set({
-          modifiedAt:Firebase.ServerValue.TIMESTAMP
-        });
-
-      });
-    });
-
-  }
-
-  $scope.initChat = function(uid)
-  {
-
-    var message="Hi there";
-
-    if($scope.user.uid==uid)
-    {
-      alert('Cannot chat with yourself');
-      return false;
-    }
-    
-    var chat_id = $scope.getChatId(uid,$scope.user.uid);
-    if($scope.chats.$getRecord(chat_id))
-    {
-      alert('Chat already initiated');
-      $scope.selectChat(chat_id);
-      return;
-    }
-
-    var ref = Ref.child('user-chats').child($scope.user.uid).child(chat_id);
-    var chat= $firebaseObject(ref);
-    chat.$loaded().then(function(data)
-    {
-
-      /* store chat metas */
-      var ref = Ref.child('chat-metas').child(chat_id);
-      ref.set({
-        createdAt:Firebase.ServerValue.TIMESTAMP,
-        type:"1to1"
-      });
-
-      /* store members */
-      var ref = Ref.child('chat-members').child(chat_id);
-      /* member 1 */
-      ref.child(uid).set(true);
-      /* member 2 */
-      ref.child($scope.user.uid).set(true);
-      
-      /* and select initiated chat */
-      $scope.selectChat(chat_id);
-      
-      /* Send sample message to initiate the chat */
-      $scope.sendMessage(message,chat_id);
-
-    });
-  }
-
-  /* This function used to display error messages */
-  function alert(msg) {
-    $scope.err = msg;
     $timeout(function() {
-      $scope.err = null;
-    }, 5000);
+      $('.chat-message').scrollTop($('.chat-message')[0].scrollHeight);
+    }, 500);
+  }).catch(alert);
+  
+
+}
+
+/* [MAGIC] To enable one to one chat this functions generates chat_id from the chat's members's uid */
+/* http://stackoverflow.com/questions/33540479/best-way-to-manage-chat-channels-in-firebase/33547123#33547123 */
+$scope.getChatId=function(user1,user2)
+{
+  var chat_id;
+  if(user1>user2)
+  {
+    chat_id='chat-'+user1+user2;
   }
+  else {
+    chat_id='chat-'+user2+user1;
+  }
+  return chat_id;
+}
+
+/* To send message to chat */
+$scope.sendMessage = function(newMessage,chat_id) {
+  if( newMessage && chat_id ) {
+
+    /* Get reference to chat-messages by chat_id */
+    var ref = Ref.child('chat-messages').child(chat_id);
+
+    /* Save message along with creation timestamp and send's uid */
+    var message= { 
+      text:newMessage,
+      createdAt:Firebase.ServerValue.TIMESTAMP,
+      uid:$scope.user.uid 
+    };
+    ref.push(message, function(err) {
+      /* On success updated chat's modified time to order chats modification time */
+      $scope.updateModifiedAt(chat_id);
+      $('.chat-message').scrollTop($('.chat-message')[0].scrollHeight);
+    });
+  }
+};
+
+/* This function updates the chat's last modification timestamp */
+$scope.updateModifiedAt=function(chat_id)
+{ 
+
+  /* Get all members of chat */
+  var chat_members=$firebaseArray(Ref.child('chat-members').child(chat_id));
+
+  chat_members.$loaded().then(function(chat_members){
+
+    /* Updated each member's conversation's last modification time */
+    angular.forEach(chat_members, function(member, key) {
+
+      var ref = Ref.child('user-chats').child(member.$id).child(chat_id);
+      ref.set({
+        modifiedAt:Firebase.ServerValue.TIMESTAMP
+      });
+
+    });
+  });
+
+}
+
+$scope.initChat = function(uid)
+{
+
+  var message="Hi there";
+
+  if($scope.user.uid==uid)
+  {
+    alert('Cannot chat with yourself');
+    return false;
+  }
+
+  var chat_id = $scope.getChatId(uid,$scope.user.uid);
+  if($scope.chats.$getRecord(chat_id))
+  {
+    alert('Chat already initiated');
+    $scope.selectChat(chat_id);
+    return;
+  }
+
+  var ref = Ref.child('user-chats').child($scope.user.uid).child(chat_id);
+  var chat= $firebaseObject(ref);
+  chat.$loaded().then(function(data)
+  {
+
+    /* store chat metas */
+    var ref = Ref.child('chat-metas').child(chat_id);
+    ref.set({
+      createdAt:Firebase.ServerValue.TIMESTAMP,
+      type:"1to1"
+    });
+
+    /* store members */
+    var ref = Ref.child('chat-members').child(chat_id);
+    /* member 1 */
+    ref.child(uid).set(true);
+    /* member 2 */
+    ref.child($scope.user.uid).set(true);
+
+    /* and select initiated chat */
+    $scope.selectChat(chat_id);
+
+    /* Send sample message to initiate the chat */
+    $scope.sendMessage(message,chat_id);
+
+  });
+}
+
+/* This function used to display error messages */
+function alert(msg) {
+  $scope.err = msg;
+  $timeout(function() {
+    $scope.err = null;
+  }, 5000);
+}
 });

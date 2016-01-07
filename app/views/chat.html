@@ -1,57 +1,92 @@
-<div class="container">
-	<div class="row">
-		<p class="alert alert-danger" ng-show="err">{{err}}</p>
-	</div>
-	<div class="row">
+<div class="row">
+	<p class="alert alert-danger" ng-show="err">{{err}}</p>
+</div>
+<div class="row">
+	<div class="chat-wrapper">
+		<div class="col-lg-4">
+			<aside class="chat-list-wrapper">
+				<header class="chat-list-header">
+					<div class="form-group text-right">
+						<button class="btn btn-xs btn-default pull-right1">New Chat <i class="fa fa-comment-o"></i></button>
+					</div>
+					<input class="form-control input-sm" placeholder="Search" ng-model="search">
+				</header>
 
-		<div class="conversation-wrap col-lg-4">
-			<div class="media conversation" ng-repeat="chat in chats | reverse" ng-click="$parent.selectChat(chat.$id);" ng-class="{'active':$parent.selected==chat.$id}" ng-init="$index==0 && !$parent.selected && $parent.selectChat(chat.$id)">
-				<a class="pull-left" href="#">
-					<img class="media-object" alt="{{users[chat_metas[chat.$id].user].name}}" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=35&bg=f27373&txtclr=ffffff&txt={{ users[chat_metas[chat.$id].user].first_name | limitTo:1 | uppercase }}{{ users[chat_metas[chat.$id].user].last_name | limitTo:1 | uppercase}}&w=64&h=64">
-				</a>
-				<div class="media-body">
-					<h4 class="media-heading">
-						{{users[chat_metas[chat.$id].user].first_name | capitalize}} {{users[chat_metas[chat.$id].user].last_name | capitalize}}
-					</h4>
-					<small>{{chat_metas[chat.$id].lastMessage.text | limitTo:20}}</small>
-					<small class="pull-right">{{chat_metas[chat.$id].lastMessage.createdAt | date:'shortTime'}}</small>
-				</div>
-			</div>
-			<br>
-			<label><small class="text-center">[TEMPORARY] Userlist to initiate chat</small></label>
-			<div class="media conversation" ng-repeat="user in listUsers | reverse" ng-click="$parent.initChat(user.$id);">
-				<a class="pull-left" href="#">
-					<img class="media-object" alt="64x64" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=25&bg=f27373&txtclr=ffffff&txt={{ user.first_name | limitTo:1 | uppercase }}{{ user.last_name | limitTo:1 | uppercase}}&w=50&h=50">
-				</a>
-				<div class="media-body">
-					<h4 class="media-heading">
-						{{user.first_name | capitalize}} {{user.last_name | capitalize}}
-					</h4>
-				</div>
-			</div>
-		</div>
-
-		<div class="message-wrap col-lg-8">
-			<div class="msg-wrap">
-				<div class="media msg" ng-repeat="message in messages">
-					<a class="pull-left" href="#">
-						<img class="media-object" alt="{{chat_members[selected].name}}" style="width: 50px; height: 50px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=20&bg=f27373&txtclr=ffffff&txt={{ users[message.uid].first_name | limitTo:1 | uppercase }}{{ users[message.uid].last_name | limitTo:1 | uppercase}}&w=50&h=50">
-					</a>
-					<div class="media-body">
-						<small class="pull-right time"><i class="fa fa-clock-o"></i> {{message.createdAt | date:'medium'}}</small>
-						<h5 class="media-heading">
-							{{users[message.uid].first_name | capitalize}} {{users[message.uid].last_name | capitalize}}
-						</h5>
-						<small>{{message.text}}</small>
+				<div class="chat-list">
+					<div ng-repeat="chat in chats | reverse " ng-click="$parent.selectChat(chat.$id);" ng-class="{'selected':$parent.selected==chat.$id}" ng-init="$index==0 && !$parent.selected && $parent.selectChat(chat.$id)">
+						<div class="media chat">
+							<div class="media-left">
+								<img class="media-object chat-author-img" alt="{{users[chat_metas[chat.$id].user].name}}" style="width: 35px; height: 35px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=24&bg=f27373&txtclr=ffffff&txt={{ users[chat_metas[chat.$id].user].first_name | limitTo:1 | uppercase }}&w=50&h=50">
+							</div>
+							<div class="media-body">
+								<div class="chat-author-name">
+									{{users[chat_metas[chat.$id].user].first_name | capitalize}} {{users[chat_metas[chat.$id].user].last_name | capitalize}}
+								</div>
+								<span class="chat-last-message">
+									&nbsp;{{chat_metas[chat.$id].lastMessage.text | limitTo:20}}
+								</span>
+								<span class="chat-timestamp pull-right">
+									&nbsp;{{chat_metas[chat.$id].lastMessage.createdAt | date:'shortTime'}}
+								</span>
+								
+							</div>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div class="send-wrap ">
-				<textarea class="form-control send-message" rows="3" placeholder="Write a message..."  ng-model="newMessage"></textarea>
-			</div>
-			<div>
-				<button class="col-lg-4 text-right btn btn-info pull-right" role="button"  ng-click="selected && sendMessage(newMessage,selected);newMessage = null;" ng-class="{'disabled':(!selected || !newMessage)}"><i class="fa fa-plus"></i> Send Message</button>
-			</div>
+			</aside>
+		</div>
+		<div class="col-lg-8">
+			<section class="chat-message-wrapper">
+				<header class="chat-message-header">
+					<div class="cf">
+						<div class="status">
+							<!-- <i class="status__indicator--online"></i>   -->
+							<div class="meta">
+								<div class="meta__name">
+									{{users[chat_metas[selected].user].first_name | capitalize}}
+									{{users[chat_metas[selected].user].last_name | capitalize}}
+								</div>
+							</div>
+						</div>
+					</div>
+				</header>
+				<section class="chat-message">
+					<div ng-repeat="message in messages">
+						<div class="media">
+							<div class="media-left" ng-if="users[message.uid].$id!=user.uid">
+								<img class="media-object message-author-img" alt="{{users[message.uid].name}}" style="width: 35px; height: 35px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=24&bg=f27373&txtclr=ffffff&txt={{ users[message.uid].first_name | limitTo:1 | uppercase }}&w=50&h=50">
+							</div>
+							<div class="media-body" ng-class="{'text-right':users[message.uid].$id==user.uid}">
+								<h5 class="media-heading">
+									{{users[message.uid].first_name | capitalize}} {{users[message.uid].last_name | capitalize}}
+								</h5>
+								<div class="message-body">
+									{{message.text}}
+								</div>
+								<div class="message-time">
+									{{message.createdAt | date:'shortTime'}}
+								</div>
+							</div>
+							<div class="media-right" ng-if="users[message.uid].$id==user.uid">
+								<img class="media-object message-author-img" alt="{{users[message.uid].name}}" style="width: 35px; height: 35px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=24&bg=f27373&txtclr=ffffff&txt={{ users[message.uid].first_name | limitTo:1 | uppercase }}&w=50&h=50">
+							</div>
+						</div>
+					</div>
+				</section>
+				<footer class="chat-send-message">
+					<form>
+						<fieldset>
+							<div class="form-group" style="margin-bottom:5px">
+								<textarea class="form-control" rows="3" placeholder="Write a message..."  ng-model="newMessage">
+								</textarea>
+							</div>
+							<button class="text-right btn btn-default pull-right" role="button"  ng-click="selected && sendMessage(newMessage,selected);newMessage = null;" ng-class="{'disabled':(!selected || !newMessage)}">
+								Send Message
+							</button>
+						</fieldset>
+					</form>
+				</footer>
+			</section>
 		</div>
 	</div>
 </div>
