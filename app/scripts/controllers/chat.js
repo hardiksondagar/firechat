@@ -123,7 +123,7 @@
       return;
     }
 
-    if(typeof newMessage.text == "undefined" || typeof newMessage.file == "undefined")
+    if(typeof newMessage.text == "undefined" && typeof newMessage.file == "undefined")
     {
       alert("Please type message or select attachment to send message");
       return;
