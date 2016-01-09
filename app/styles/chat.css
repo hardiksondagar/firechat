@@ -150,6 +150,11 @@ html,body
 	margin-bottom: 5px;
 }
 
+.message-file .message-body a
+{
+	color:#333;
+}
+
 .text-right .message-body
 {
 	background-color: #E9F2DC;

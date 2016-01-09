@@ -33,6 +33,7 @@
 
   $scope.loading={messages:false,send:false};
 
+
   /* [TEMPORARY TO INITIATE CONVERSATION] $scope.listUsers is list of users registered in system */
   $scope.listUsers=$firebaseArray(Ref.child('users').limitToLast(10));
 
@@ -122,18 +123,23 @@
 
       /* Save message along with creation timestamp and send's uid */
       var message= { 
-        text:newMessage.text,
+        text:null,
         createdAt:Firebase.ServerValue.TIMESTAMP,
         uid:$scope.user.uid,
         file:null
       };
 
+      if(typeof newMessage.text != "undefined")
+      {
+        message.text=newMessage.text;
+      }
+
       /* Handle file thing */
       // var input = document.getElementById('file');
       // var f  = input.files[0];
-      var f  = newMessage.file;
-      $scope.isMessageSending=true;
-      if(typeof f != 'undefined') {
+      
+      if(typeof newMessage.file != 'undefined') {
+        var f  = newMessage.file;
         var reader = new FileReader();
         reader.onload = (function(theFile) {
           return function(e) {
@@ -152,7 +158,7 @@
               createdAt:Firebase.ServerValue.TIMESTAMP
             };
 
-            // document.getElementById("file").value = "";
+            document.getElementById("file").value = "";
             $scope.messages.$add(message).then(function(ref) {
               var id = ref.key();
               console.log("added record with id " + id);

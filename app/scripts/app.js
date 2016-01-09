@@ -20,6 +20,13 @@ angular.module('chatApp', [
     'firebase.auth'
     ]);
 
+
+angular.module('chatApp').config(['$compileProvider',function( $compileProvider ) {   
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension|data):/);
+}
+]);
+
+
 angular.module('chatApp').filter('capitalize', function() {
     return function(input) {
       return (!!input) ? input.charAt(0).toUpperCase() + input.substr(1).toLowerCase() : '';

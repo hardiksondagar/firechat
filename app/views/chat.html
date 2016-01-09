@@ -78,13 +78,16 @@
 								</div>
 							-->
 							<div class="message-file" ng-if="message.file">
-
-								<img ng-if="message.file.type=='image/jpeg' || message.file.type=='image/png'" ng-src="{{message.file.payload}}" class="img-rounded" width="40%" image-on-load-directive>
+								<a href="{{message.file.payload}}" download="{{message.file.name}}" ng-if="message.file.type=='image/jpeg' || message.file.type=='image/png'" >
+									<img ng-src="{{message.file.payload}}" class="img-rounded" width="40%" image-on-load-directive>
+								</a>
 
 								<div ng-if="!(message.file.type=='image/jpeg' || message.file.type=='image/png')" class="message-body">
-									<i class="fa fa-paperclip fa-2x"></i> {{message.file.name}}
-									<br>
-									Size: {{message.file.size | bytes}}
+									<a href="{{message.file.payload}}" download="{{message.file.name}}">
+										<i class="fa fa-paperclip fa-2x"></i> {{message.file.name}}
+										<br>
+										size: {{message.file.size | bytes}}  <i class="fa fa-download"></i>
+									</a>
 								</div>
 
 							</div>
@@ -121,7 +124,7 @@
 								<input type="file" id="file" name="file" file-model="newMessage.file"/>
 							</button>
 							<span ng-if="sendForm.file.length">Hey there..</span>
-							<button class="text-right btn btn-default" role="button"  ng-click="selected && sendMessage(newMessage,selected);newMessage = null;" ng-class="{'disabled':(!selected || !newMessage)}">
+							<button class="text-right btn btn-default" role="button"  ng-click="selected && sendMessage(newMessage,selected);newMessage=null;" ng-class="{'disabled':(!selected || !newMessage)}">
 								Send Message
 							</button>
 						</div>
