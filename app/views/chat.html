@@ -20,16 +20,17 @@
 								<img class="media-object chat-author-img" alt="{{users[chat_metas[chat.$id].user].name}}" style="width: 35px; height: 35px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=24&bg=f27373&txtclr=ffffff&txt={{ users[chat_metas[chat.$id].user].first_name | limitTo:1 | uppercase }}&w=50&h=50">
 							</div>
 							<div class="media-body">
-								<div class="chat-author-name">
-									{{users[chat_metas[chat.$id].user].first_name | capitalize}} {{users[chat_metas[chat.$id].user].last_name | capitalize}}
+								<div class="chat-author-name" style="min-height:20px">
+									{{users[chat_metas[chat.$id].user].first_name | capitalize}} {{users[chat_metas[chat.$id].user].last_name | capitalize}}&nbsp;
 								</div>
-								<span class="chat-last-message">
-									&nbsp;{{chat_metas[chat.$id].lastMessage.text | limitTo:20}}
-								</span>
-								<span class="chat-timestamp pull-right">
-									&nbsp;{{chat_metas[chat.$id].lastMessage.createdAt | date:'shortTime'}}
-								</span>
-								
+								<div class="chat-meta" style="min-height:20px">
+									<span class="chat-last-message">
+										&nbsp;{{chat_metas[chat.$id].lastMessage.text | limitTo:20}}
+									</span>
+									<span class="chat-timestamp pull-right">
+										&nbsp;{{chat_metas[chat.$id].lastMessage.createdAt | date:'shortTime'}}
+									</span>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -59,10 +60,14 @@
 					</div>
 				</header>
 				<section class="chat-message">
-					<div ng-if="selected && !messages.length" class="text-center">
-						<h3 style="margin-top:25%">Loading <i class="fa fa-spinner fa-pulse"></i></h3>
+					<div ng-if="selected && loading.messages" class="text-center" style="margin-top:25%">
+						<i class="fa fa-spinner fa-spin fa-2x"></i>
+						<h5>Loading</h5>
 					</div>
-					<div ng-repeat="message in messages">
+					<div ng-if="selected && !loading.messages && !messages.length" class="text-center">
+						<h5 style="margin-top:25%;color:#aaa">No messages found <i class="fa fa-frown-o"></i></h5>
+					</div>
+					<div ng-repeat="message in messages" ng-repeat-directive>
 						<div class="media">
 							<div class="media-left" ng-if="users[message.uid].$id!=user.uid">
 								<img class="media-object message-author-img" alt="{{users[message.uid].name}}" style="width: 35px; height: 35px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=24&bg=f27373&txtclr=ffffff&txt={{ users[message.uid].first_name | limitTo:1 | uppercase }}&w=50&h=50">
@@ -74,7 +79,7 @@
 							-->
 							<div class="message-file" ng-if="message.file">
 
-								<img ng-if="message.file.type=='image/jpeg' || message.file.type=='image/png'" ng-src="{{message.file.payload}}" class="img-rounded" width="40%">
+								<img ng-if="message.file.type=='image/jpeg' || message.file.type=='image/png'" ng-src="{{message.file.payload}}" class="img-rounded" width="40%" image-on-load-directive>
 
 								<div ng-if="!(message.file.type=='image/jpeg' || message.file.type=='image/png')" class="message-body">
 									<i class="fa fa-paperclip fa-2x"></i> {{message.file.name}}
@@ -83,11 +88,14 @@
 								</div>
 
 							</div>
-							<div class="message-body">
+							<div class="message-body" ng-if="message.text">
 								{{message.text}}
 							</div>
 							<div class="message-time">
 								{{message.createdAt | date:'shortTime'}}
+							</div>
+							<div class="message-time"  ng-if="message.status=='sending'">
+								Sending <i class="fa fa-spinner fa-spin"></i>
 							</div>
 						</div>
 						<div class="media-right" ng-if="users[message.uid].$id==user.uid">
@@ -100,15 +108,19 @@
 				<form>
 					<fieldset>
 						<div class="form-group" style="margin-bottom:5px">
-							<textarea class="form-control" rows="3" placeholder="Write a message..."  ng-model="newMessage">
+							<textarea class="form-control" rows="3" placeholder="Write a message..."  ng-model="newMessage.text">
 							</textarea>
 						</div>
 						<!-- <input type="file" id="file"> -->
 						<div class="text-right">
+							<span class="text-warning">
+								{{newMessage.file.name}}
+							</span>
 							<button class='btn btn-default btn-file-select'>
 								<i class="fa fa-paperclip"></i>
-								<input type="file" id="file" name="upload"/>
+								<input type="file" id="file" name="file" file-model="newMessage.file"/>
 							</button>
+							<span ng-if="sendForm.file.length">Hey there..</span>
 							<button class="text-right btn btn-default" role="button"  ng-click="selected && sendMessage(newMessage,selected);newMessage = null;" ng-class="{'disabled':(!selected || !newMessage)}">
 								Send Message
 							</button>
