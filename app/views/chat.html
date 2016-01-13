@@ -14,7 +14,7 @@
 					</header>
 
 					<div class="chat-list">
-						<div ng-repeat="chat in chats | reverse " ng-click="$parent.selectChat(chat.$id);" ng-class="{'selected':$parent.selected==chat.$id}" ng-init="$index==0 && !$parent.selected && $parent.selectChat(chat.$id)">
+						<div ng-repeat="chat in chats | reverse " ng-click="$parent.selectChat(chat.$id);" ng-class="{'selected':$parent.selected==chat.$id}" ng-init="$index==0 && !$parent.selected && $parent.selectChat(chat.$id)" ng-show="users[chat_metas[chat.$id].user].first_name">
 							<div class="media chat">
 								<div class="media-left">
 									<img class="media-object chat-author-img" alt="{{users[chat_metas[chat.$id].user].name}}" style="width: 35px; height: 35px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=24&bg=f27373&txtclr=ffffff&txt={{ users[chat_metas[chat.$id].user].first_name | limitTo:1 | uppercase }}&w=50&h=50">
@@ -24,8 +24,11 @@
 										{{users[chat_metas[chat.$id].user].first_name | capitalize}} {{users[chat_metas[chat.$id].user].last_name | capitalize}}&nbsp;
 									</div>
 									<div class="chat-meta" style="min-height:20px">
-										<span class="chat-last-message">
+										<span class="chat-last-message" ng-if="chat_metas[chat.$id].lastMessage.text">
 											&nbsp;{{chat_metas[chat.$id].lastMessage.text | limitTo:20}}
+										</span>
+										<span class="chat-last-message" ng-if="!chat_metas[chat.$id].lastMessage.text && chat_metas[chat.$id].lastMessage.file.name">
+											&nbsp;<i class="fa fa-paperclip"></i> {{chat_metas[chat.$id].lastMessage.file.name | limitTo:20}}
 										</span>
 										<span class="chat-timestamp pull-right">
 											&nbsp;{{chat_metas[chat.$id].lastMessage.createdAt | date:'shortTime'}}
@@ -116,21 +119,20 @@
 						</div>
 						<!-- <input type="file" id="file"> -->
 						<div class="text-right">
-							<span class="text-warning">
+							<!-- <span class="text-warning">
 								{{newMessage.file.name}}
-							</span>
+							</span> -->
 							<span class='checkbox' style="display:inline-block">
 								<label>
 									<input type="checkbox" name="EnterToSend" ng-model="profile.EnterToSend"> Press Enter to send &nbsp;&nbsp;
 								</label>
 							</span>
 							<button class='btn btn-default btn-file-select'>
-								<i class="fa fa-paperclip"></i>
+								{{newMessage.file.name}} <i class="fa fa-paperclip"></i>
 								<input type="file" id="file" name="file" file-model="newMessage.file"/>
 							</button>
-							<span ng-if="sendForm.file.length">Hey there..</span>
 							<button class="text-right btn btn-default" role="button"  ng-click="selected && sendMessage(newMessage,selected);newMessage=null;" ng-class="{'disabled':(!selected || !newMessage)}">
-								Send Message
+								<i class="fa fa-paper-plane-o"></i> Send Message
 							</button>
 						</div>
 					</fieldset>

@@ -278,7 +278,7 @@
     });
   }
 
-  
+
   /* This function used to display error messages */
   function alert(msg) {
     $scope.loading.send=false;
