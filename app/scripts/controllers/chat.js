@@ -19,8 +19,6 @@
   /* $scope.chat_metas stores chat's details like person's name, last message, modified timestamp */
   $scope.chat_metas=[];
 
-
-  
   
   /* $scope.selected used to determine which chat is currently selected */
   $scope.selected=null;
@@ -42,6 +40,11 @@
   $scope.chats.$watch(function(event) {
     $scope.loadChatDetails(event.key);
   });
+
+
+  /* load Profile to set EnterToSend button value */
+  var profile = $firebaseObject(Ref.child('users/'+user.uid));
+  profile.$bindTo($scope, 'profile');
 
   /* $scope.loadChatDetails fetchs the chat's meta data including chat's members, member's user info */
   $scope.loadChatDetails=function(chat_id)
@@ -117,6 +120,8 @@
   /* To send message to chat */
   $scope.sendMessage = function(newMessage,chat_id) {
 
+    $scope.newMessage=null;
+
     if(!chat_id)
     {
       alert("Please select chat to send message");
@@ -128,6 +133,9 @@
       alert("Please type message or select attachment to send message");
       return;
     }
+
+    $scope.loading.send=true;
+
 
     /* Get reference to chat-messages by chat_id */
     var ref = Ref.child('chat-messages').child(chat_id);
@@ -146,135 +154,137 @@
     }
 
     /* Handle file thing */
-      // var input = document.getElementById('file');
-      // var f  = input.files[0];
-      
-      if(typeof newMessage.file != 'undefined') {
-        var f  = newMessage.file;
-        var reader = new FileReader();
-        reader.onload = (function(theFile) {
-          return function(e) {
+    if(typeof newMessage.file != 'undefined') {
+      var f  = newMessage.file;
+      var reader = new FileReader();
+      reader.onload = (function(theFile) {
+        return function(e) {
 
-            if(f.size>=10485760)
-            {
-              alert('Cannot upload files with size more than 10MB');
-              return;
-            }
+          if(f.size>=10485760)
+          {
+            alert('Cannot upload files with size more than 10MB');
+            return;
+          }
 
-            message.file={
-              payload:e.target.result,
-              name:f.name,
-              type:f.type,
-              size:f.size,
-              createdAt:Firebase.ServerValue.TIMESTAMP
-            };
-
-            document.getElementById("file").value = "";
-            $scope.messages.$add(message).then(function(ref) {
-              var id = ref.key();
-              console.log("added record with id " + id);
-              console.log($scope.messages.$indexFor(id)); 
-              /* On success updated chat's modified time to order chats modification time */
-              $scope.updateModifiedAt(chat_id);
-            });
+          message.file={
+            payload:e.target.result,
+            name:f.name,
+            type:f.type,
+            size:f.size,
+            createdAt:Firebase.ServerValue.TIMESTAMP
           };
-        })(f);
-        reader.readAsDataURL(f);
 
-      } else {
-        $scope.messages.$add(message).then(function(ref) {
-          var id = ref.key();
-          console.log("added record with id " + id);
-          console.log($scope.messages.$indexFor(id));
-          /* On success updated chat's modified time to order chats modification time */
-          $scope.updateModifiedAt(chat_id);
-        });
-      }
-    };
-
-    var getIndexIfObjWithOwnAttr = function(array, attr, value) {
-      for(var i = 0; i < array.length; i++) {
-        if(array[i].hasOwnProperty(attr) && array[i][attr] === value) {
-          return i;
-        }
-      }
-      return -1;
-    }
-
-    /* This function updates the chat's last modification timestamp */
-    $scope.updateModifiedAt=function(chat_id)
-    { 
-
-      /* Get all members of chat */
-      var chat_members=$firebaseArray(Ref.child('chat-members').child(chat_id));
-
-      chat_members.$loaded().then(function(chat_members){
-
-        /* Updated each member's conversation's last modification time */
-        angular.forEach(chat_members, function(member, key) {
-
-          var ref = Ref.child('user-chats').child(member.$id).child(chat_id);
-          ref.set({
-            modifiedAt:Firebase.ServerValue.TIMESTAMP
+          document.getElementById("file").value = "";
+          $scope.messages.$add(message).then(function(ref) {
+            var id = ref.key();
+            console.log("added record with id " + id);
+            console.log($scope.messages.$indexFor(id)); 
+            /* On success updated chat's modified time to order chats modification time */
+            $scope.updateModifiedAt(chat_id);
+            $scope.loading.send=false;
           });
+        };
+      })(f);
+      reader.readAsDataURL(f);
 
-        });
+    } else {
+      $scope.messages.$add(message).then(function(ref) {
+        var id = ref.key();
+        console.log("added record with id " + id);
+        console.log($scope.messages.$indexFor(id));
+        /* On success updated chat's modified time to order chats modification time */
+        $scope.updateModifiedAt(chat_id);
+        $scope.loading.send=false;
+
       });
+    }
+  };
 
+  var getIndexIfObjWithOwnAttr = function(array, attr, value) {
+    for(var i = 0; i < array.length; i++) {
+      if(array[i].hasOwnProperty(attr) && array[i][attr] === value) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /* This function updates the chat's last modification timestamp */
+  $scope.updateModifiedAt=function(chat_id)
+  { 
+
+    /* Get all members of chat */
+    var chat_members=$firebaseArray(Ref.child('chat-members').child(chat_id));
+
+    chat_members.$loaded().then(function(chat_members){
+
+      /* Updated each member's conversation's last modification time */
+      angular.forEach(chat_members, function(member, key) {
+
+        var ref = Ref.child('user-chats').child(member.$id).child(chat_id);
+        ref.set({
+          modifiedAt:Firebase.ServerValue.TIMESTAMP
+        });
+
+      });
+    });
+
+  }
+
+  $scope.initChat = function(uid)
+  {
+
+    var message="Hi there";
+
+    if($scope.user.uid==uid)
+    {
+      alert('Cannot chat with yourself');
+      return false;
     }
 
-    $scope.initChat = function(uid)
+    var chat_id = $scope.getChatId(uid,$scope.user.uid);
+    if($scope.chats.$getRecord(chat_id))
+    {
+      alert('Chat already initiated');
+      $scope.selectChat(chat_id);
+      return;
+    }
+
+    var ref = Ref.child('user-chats').child($scope.user.uid).child(chat_id);
+    var chat= $firebaseObject(ref);
+    chat.$loaded().then(function(data)
     {
 
-      var message="Hi there";
-
-      if($scope.user.uid==uid)
-      {
-        alert('Cannot chat with yourself');
-        return false;
-      }
-
-      var chat_id = $scope.getChatId(uid,$scope.user.uid);
-      if($scope.chats.$getRecord(chat_id))
-      {
-        alert('Chat already initiated');
-        $scope.selectChat(chat_id);
-        return;
-      }
-
-      var ref = Ref.child('user-chats').child($scope.user.uid).child(chat_id);
-      var chat= $firebaseObject(ref);
-      chat.$loaded().then(function(data)
-      {
-
-        /* store chat metas */
-        var ref = Ref.child('chat-metas').child(chat_id);
-        ref.set({
-          createdAt:Firebase.ServerValue.TIMESTAMP,
-          type:"1to1"
-        });
-
-        /* store members */
-        var ref = Ref.child('chat-members').child(chat_id);
-        /* member 1 */
-        ref.child(uid).set(true);
-        /* member 2 */
-        ref.child($scope.user.uid).set(true);
-
-        /* and select initiated chat */
-        $scope.selectChat(chat_id);
-
-        /* Send sample message to initiate the chat */
-        $scope.sendMessage(message,chat_id);
-
+      /* store chat metas */
+      var ref = Ref.child('chat-metas').child(chat_id);
+      ref.set({
+        createdAt:Firebase.ServerValue.TIMESTAMP,
+        type:"1to1"
       });
-    }
 
-    /* This function used to display error messages */
-    function alert(msg) {
-      $scope.err = msg;
-      $timeout(function() {
-        $scope.err = null;
-      }, 5000);
-    }
-  });
+      /* store members */
+      var ref = Ref.child('chat-members').child(chat_id);
+      /* member 1 */
+      ref.child(uid).set(true);
+      /* member 2 */
+      ref.child($scope.user.uid).set(true);
+
+      /* and select initiated chat */
+      $scope.selectChat(chat_id);
+
+      /* Send sample message to initiate the chat */
+      $scope.sendMessage(message,chat_id);
+
+    });
+  }
+
+  
+  /* This function used to display error messages */
+  function alert(msg) {
+    $scope.loading.send=false;
+    $scope.err = msg;
+    $timeout(function() {
+      $scope.err = null;
+    }, 5000);
+  }
+});
