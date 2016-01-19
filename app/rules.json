@@ -14,37 +14,50 @@
                ".validate": "newData.isString() && newData.val().length <= 200"
             },
             "email": {
-               ".validate": "newData.isString() && newData.val().length <=320"
+               ".validate": "newData.isString() && newData.val().length <= 320"
             },
             "EnterToSend":{
-               ".validate": "newData.val()==true || newData.val()==false"
+               ".validate": "newData.val() == true || newData.val() == false"
             },
             "$other": {
                ".validate": false
             }
          }
     },
-    "chat-messages": {
-      ".read": "auth != null",
-      ".write":  "auth != null",
+   "chat-messages": {
       "$chatId": {
-          ".indexOn": ["createdAt"] 
+           // I can read messages to chat I'm part of
+          ".read": "auth != null && $chatId.contains(auth.uid)",
+          // I can write messages to chat I'm part of
+          ".write": "auth != null && $chatId.contains(auth.uid)",
+          ".indexOn": ["createdAt"],
+          "$messageId": {
+             "text": {
+               ".validate": "newData.isString() && newData.val().length <= 4000"
+             },
+             "uid": {
+               ".validate": "newData.isString() && newData.val() == auth.uid"
+             },
+             "createdAt": {
+               ".validate": "newData.isNumber()"
+             },
+             "file":{
+               // File should have name, payload and size field and file size should be less than 10 MB
+               ".validate": "newData.hasChildren(['name', 'payload', 'size']) && newData.child('name').isString() &&  newData.child('size').isNumber() && newData.child('size').val() < 10485760"
+             }
+          }
       }
     },
     "user-chats": {
-      ".read": "auth != null",
-      ".write": "auth != null",
-      "$chatId": {
-        ".indexOn": ["modifiedAt"]
+      "$userId": {
+      // I can only read only my chats
+       ".read": "auth != null && auth.uid == $userId ",
+        "$chatId": {
+             // I can write to chat I'm part of
+            ".write": "auth != null && $chatId.contains($userId)"
+        },
+       ".indexOn": ["modifiedAt"]
       }
-    },
-    "chat-members": {
-      ".read": "auth != null",
-      ".write": "auth != null"
-    },
-    "chat-metas": {
-      ".read":"auth != null",
-      ".write":"auth != null"
     },
     "advisors": {
       ".read":"auth != null",
