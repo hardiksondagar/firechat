@@ -8,30 +8,27 @@
 				<aside class="chat-list-wrapper">
 					<header class="chat-list-header">
 						<div class="form-group text-right">
-							<button class="btn btn-xs btn">New Chat &nbsp;<i class="fa fa-pencil-square-o"></i></button>
+							<button class="btn btn-xs btn" ng-click="initNewChat()">New Chat &nbsp;<i class="fa fa-pencil-square-o"></i></button>
 						</div>
 						<input class="form-control input-sm" placeholder="Search" ng-model="search">
 					</header>
 
 					<div class="chat-list">
-						<div ng-repeat="chat in chats | reverse " ng-click="$parent.selectChat(chat.$id);" ng-class="{'selected':$parent.selected==chat.$id}" ng-init="$index==0 && !$parent.selected && $parent.selectChat(chat.$id)" ng-show="users[chat_metas[chat.$id].user].first_name">
+						<div ng-repeat="chat in chats | reverse " ng-click="$parent.selectChat(chat.$id);" ng-class="{'selected':$parent.selected==chat.$id}" ng-init="$index==0 && !$parent.selected && $parent.selectChat(chat.$id)" ng-show="users[getUserFromChatId(chat.$id)].first_name">
 							<div class="media chat">
 								<div class="media-left">
-									<img class="media-object chat-author-img" alt="{{users[chat_metas[chat.$id].user].name}}" style="width: 35px; height: 35px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=24&bg=f27373&txtclr=ffffff&txt={{ users[chat_metas[chat.$id].user].first_name | limitTo:1 | uppercase }}&w=50&h=50">
+									<img class="media-object chat-author-img" alt="{{users[getUserFromChatId(chat.$id)]}}" style="width: 35px; height: 35px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=24&bg=f27373&txtclr=ffffff&txt={{ users[getUserFromChatId(chat.$id)].first_name | limitTo:1 | uppercase }}&w=50&h=50">
 								</div>
 								<div class="media-body">
 									<div class="chat-author-name" style="min-height:20px">
-										{{users[chat_metas[chat.$id].user].first_name | capitalize}} {{users[chat_metas[chat.$id].user].last_name | capitalize}}&nbsp;
+										{{users[getUserFromChatId(chat.$id)].name }}&nbsp;
 									</div>
 									<div class="chat-meta" style="min-height:20px">
-										<span class="chat-last-message" ng-if="chat_metas[chat.$id].lastMessage.text">
-											&nbsp;{{chat_metas[chat.$id].lastMessage.text | limitTo:20}}
-										</span>
-										<span class="chat-last-message" ng-if="!chat_metas[chat.$id].lastMessage.text && chat_metas[chat.$id].lastMessage.file.name">
-											&nbsp;<i class="fa fa-paperclip"></i> {{chat_metas[chat.$id].lastMessage.file.name | limitTo:20}}
+										<span class="chat-last-message" ng-if="chat.lastMessage.text">
+											<i class="fa fa-paperclip" ng-if="chat.lastMessage.type == 'file'"></i> {{chat.lastMessage.text | limitTo:20}}
 										</span>
 										<span class="chat-timestamp pull-right">
-											&nbsp;{{chat_metas[chat.$id].lastMessage.createdAt | date:'shortTime'}}
+											&nbsp;{{chat.modifiedAt | date:'shortTime'}}
 										</span>
 									</div>
 								</div>
@@ -44,39 +41,50 @@
 				<section class="chat-message-wrapper">
 					<header class="chat-message-header">
 						<div class="cf">
-							<div class="status">
+							<div class="status"  ng-if="selected">
 								<div class="meta">
 									<div class="meta__name">
-										{{users[chat_metas[selected].user].first_name | capitalize}}
-										{{users[chat_metas[selected].user].last_name | capitalize}}
+									{{users[getUserFromChatId(selected)].name}}
 									</div>
 								</div>
-							<!-- <div class="form-horizontal">
+							</div>
+							<div class="form-horizontal" ng-if="!selected">
 								<div class="form-group form-group-sm">
 									<label class="col-sm-2 control-label">TO</label>
 									<div class="col-sm-10">
-										<input class="form-control" type="text" placeholder="Enter username">
+										<angucomplete-alt id="ex1"
+										placeholder="Search user"
+										pause="100"
+										selected-object="selectedUser"
+										local-data="usersArray"
+										search-fields="name"
+										title-field="name"
+										minlength="1"
+										input-changed="updateAutocomplete"
+										input-class="form-control form-control-small"/>
+										<!-- <input class="form-control" type="text" placeholder="Enter username"> -->
 									</div>
 								</div>
-							</div> -->
-						</div>
-					</div>
-				</header>
-				<section class="chat-message">
-					<div ng-if="selected && loading.messages" class="text-center" style="margin-top:25%">
-						<i class="fa fa-spinner fa-spin fa-2x"></i>
-						<h5>Loading</h5>
-					</div>
-					<div ng-if="selected && !loading.messages && !messages.length" class="text-center">
-						<h5 style="margin-top:25%;color:#aaa">No messages found <i class="fa fa-frown-o"></i></h5>
-					</div>
-					<div ng-repeat="message in messages" ng-repeat-directive>
-						<div class="media">
-							<div class="media-left" ng-if="users[message.uid].$id!=user.uid">
-								<img class="media-object message-author-img" alt="{{users[message.uid].name}}" style="width: 35px; height: 35px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=24&bg=f27373&txtclr=ffffff&txt={{ users[message.uid].first_name | limitTo:1 | uppercase }}&w=50&h=50">
+
 							</div>
-							<div class="media-body" ng-class="{'text-right':users[message.uid].$id==user.uid}">
-								<!-- <div class="message-author-name">
+						</div>
+					</header>
+					<section class="chat-message">
+						<div ng-if="selected && loading.messages" class="text-center" style="margin-top:25%">
+							<i class="fa fa-spinner fa-spin fa-2x"></i>
+							<h5>Loading</h5>
+						</div>
+						<div ng-if="selected && !loading.messages && !messages[selected].length" class="text-center">
+							<h5 style="margin-top:25%;color:#aaa">No messages found <i class="fa fa-frown-o"></i></h5>
+						</div>
+						<div ng-repeat="message in messages[selected]" ng-repeat-directive>
+							<div class="media">
+								<div class="media-left" ng-if="users[message.uid].$id!=user.uid">
+									<img class="media-object message-author-img" alt="{{users[message.uid].name}}" style="width: 35px; height: 35px;" ng-src="https://placeholdit.imgix.net/~text?txtsize=24&bg=f27373&txtclr=ffffff&txt={{ users[message.uid].first_name | limitTo:1 | uppercase }}&w=50&h=50">
+								</div>
+								<div class="media-body" ng-class="{'text-right':users[message.uid].$id==user.uid}">
+							<!-- 
+								<div class="message-author-name">
 									{{users[message.uid].first_name | capitalize}} {{users[message.uid].last_name | capitalize}}
 								</div>
 							-->
@@ -117,18 +125,14 @@
 							<textarea class="form-control" rows="3" placeholder="Write a message..."  ng-model="newMessage.text" ng-keyup="profile.EnterToSend && $event.keyCode == 13 && selected && sendMessage(newMessage,selected)">
 							</textarea>
 						</div>
-						<!-- <input type="file" id="file"> -->
 						<div class="text-right">
-							<!-- <span class="text-warning">
-								{{newMessage.file.name}}
-							</span> -->
 							<span class='checkbox' style="display:inline-block">
 								<label>
 									<input type="checkbox" name="EnterToSend" ng-model="profile.EnterToSend"> Press Enter to send &nbsp;&nbsp;
 								</label>
 							</span>
 							<button class='btn btn-default btn-file-select'>
-								{{newMessage.file.name}} <i class="fa fa-paperclip"></i>
+								{{newMessage.file.name  | limitTo:10 }} <i class="fa fa-paperclip"></i>
 								<input type="file" id="file" name="file" file-model="newMessage.file"/>
 							</button>
 							<button class="text-right btn btn-default" role="button"  ng-click="selected && sendMessage(newMessage,selected);newMessage=null;" ng-class="{'disabled':(!selected || !newMessage)}">

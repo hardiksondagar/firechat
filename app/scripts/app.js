@@ -17,7 +17,8 @@ angular.module('chatApp', [
     'ngTouch',
     'firebase',
     'firebase.ref',
-    'firebase.auth'
+    'firebase.auth',
+    'angucomplete-alt'
     ]);
 
 
