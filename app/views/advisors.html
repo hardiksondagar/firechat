@@ -1,0 +1,44 @@
+<div class="row">
+	<p class="alert alert-danger" ng-show="err">{{err}}</p>
+</div>
+<div class="row">
+	<div class="controller">
+		<div ng-repeat="user in userslist">
+			<div class="col-lg-4" style="margin-bottom:10px;">
+				<div class="media">
+					<div class="media-left">
+						<a href="#">
+							<img class="media-object" alt="{{user._name}}" ng-src="{{user._image}}" style="width: 40px; height: 40px;">
+						</a>
+					</div>
+					<div class="media-body">
+						<h5 class="media-heading">{{user._name}}</h5> 
+						<button class="btn btn-xs btn-success" ng-click="showChatModal(user)">Contact</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/ng-template" id="AdvisorChatModalContent.html">
+	<div class="modal-body">
+		<div ng-if="!loading.send && !status">
+			<h3>{{advisor._name}}</h3>
+			<div class="form-group">
+				<label>Message</label>
+				<textarea ng-model="newMessage.text" class="form-control" placeholder="Write a message..."></textarea>
+			</div>
+			<button class="btn btn-primary" type="button" ng-click="sendMessage(newMessage)" ng-disabled="!newMessage.text"><i class="fa fa-paper-plane-o"></i> Send Message</button>
+			<button class="btn btn-danger" type="button" ng-click="cancel()">Cancel</button>
+		</div>
+
+		<div ng-if="loading.send" class="text-center">
+			<h2>Sending...</h2>
+		</div>
+		<div ng-if="status" class="text-center">
+			<h2>{{status}}</h2>
+		</div>
+
+	</div>
+</script>

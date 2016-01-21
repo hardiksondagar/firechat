@@ -1,9 +1,12 @@
 {
   "rules": {
      "users": {
+          // Anyone can read users
           ".read": "auth != null",
           "$user": {
+            // I can write and update only my data
             ".write": "auth.uid === $user && (!newData.exists() || newData.hasChildren())",
+            // Field validation
             "first_name": {
                ".validate": "newData.isString() && newData.val().length <= 200"
             },
@@ -16,9 +19,11 @@
             "email": {
                ".validate": "newData.isString() && newData.val().length <= 320"
             },
+            // EnterToSend boolean validatoin
             "EnterToSend":{
                ".validate": "newData.val() == true || newData.val() == false"
             },
+            // invalid other fields
             "$other": {
                ".validate": false
             }
