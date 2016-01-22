@@ -13,7 +13,7 @@
 				</header>
 
 				<div class="chat-list">
-					<div ng-repeat="chat in chats | reverse " ng-click="$parent.selectChat(chat.$id);" ng-class="{'selected':$parent.selected==chat.$id}" ng-init="$index==0 && !$parent.selected && $parent.selectChat(chat.$id)" ng-show="users[chat.chatWith].first_name">
+					<div ng-repeat="chat in chats | conversation:search:users | reverse " ng-click="$parent.selectChat(chat.$id);" ng-class="{'selected':$parent.selected==chat.$id}" ng-init="$index==0 && !$parent.selected && $parent.selectChat(chat.$id)" ng-show="users[chat.chatWith].first_name">
 						<div class="media chat">
 							<div class="media-left">
 								<img class="media-object chat-author-img" alt="{{users[chat.chatWith]}}" style="width: 35px; height: 35px;" ng-src="{{users[chat.chatWith]._image}}
