@@ -6,7 +6,7 @@
  * # ChatCtrl
  */
  angular.module('chatApp')
- .controller('ChatCtrl', function ($scope, user, Ref, $q, $firebaseArray, $firebaseObject, $timeout, chatService, userService) {
+ .controller('ChatCtrl', function ($scope, user, Ref, $q, $firebaseArray, $firebaseObject, $timeout, chatService, userService, searchService) {
 
 
   /* Firebase USER actions */
@@ -108,29 +108,64 @@
   /* Start New Chat */
 
   $scope.initNewChat=function() {
+    $scope.$broadcast('angucomplete-alt:clearInput');
     $scope.selected=false;
   }
 
 
-  /* [TEMPORARY TO INITIATE CONVERSATION] $scope.listUsers is list of users registered in system */
-  
-  $scope.userslist = userService.list();
+  $scope.searchResponse = {hits:{}};
+  $scope.userslist = {};
+  $scope.minlength = 2;
+  $scope.watchSearchResultInit = false;
+  $scope.$broadcast('angucomplete-alt:clearInput');
 
+  $scope.searchUser = function(term){
+
+    var words = false;
+    searchService.searchUser('firebase',searchService.buildQuery(term, words))
+    .then(function(response){
+      $scope.searchResponse = response;
+      if(typeof $scope.searchResponse.hits == "undefined") {
+        $scope.searchResponse.hits = {};
+      }
+    });
+
+  }
+
+  var promise = null;
   
+  $scope.inputChangeHandler = function(str) {
+    if(str && str.length >= $scope.minlength) {
+
+      if(promise) { 
+        $timeout.cancel(promise);
+      }
+
+      promise = $timeout(function(){
+        $scope.searchUser(str)
+      }, 400);
+
+    }
+  }
+
   $scope.selectedUser = function(user) {
-
     if (user) {
-      var chat_id = chatService.getChatId(user.originalObject.$id,$scope.user.uid);
+      var chat_id = chatService.getChatId(user.originalObject._id,$scope.user.uid);
       $scope.selectChat(chat_id);
     } else {
       console.log('cleared');
     }
   };
 
-  /* Start New Chat Ends*/
 
 
   
+
+
+  /* Start New Chat Ends*/
+
+
+
 
 
   /* This function is use to select chat  */

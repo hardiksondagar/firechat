@@ -52,15 +52,16 @@
 							<div class="form-group form-group-sm">
 								<label class="col-sm-2 control-label">TO</label>
 								<div class="col-sm-10">
-									<angucomplete-alt id="ex1"
-									placeholder="Search user"
-									pause="100"
+									<angucomplete-alt 
+									id="ex1"
+									placeholder="Type the name of a person"
+									pause="1000"
 									selected-object="selectedUser"
-									local-data="userslist"
-									search-fields="_name"
-									title-field="_name"
-									minlength="1"
-									input-changed="updateAutocomplete"
+									local-data="searchResponse.hits"
+									search-fields="_source.first_name,_source.last_name"
+									title-field="_source.first_name,_source.last_name"
+									minlength="2"
+									input-changed="inputChangeHandler"
 									input-class="form-control form-control-small"/>
 								</div>
 							</div>

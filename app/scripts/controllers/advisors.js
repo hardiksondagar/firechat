@@ -10,7 +10,7 @@
 
   /* user from the route resolve, contains logged in users' data */
   $scope.user = user;
- 
+
 
   /* [TEMPORARY TO INITIATE CONVERSATION] $scope.listUsers is list of users registered in system */
   
@@ -89,7 +89,7 @@ angular.module('chatApp').controller('AdvisorChatModalCtrl', function ($scope, $
 
     $timeout(function() {
       $uibModalInstance.close($scope.status);
-    }, 5000);
+    }, 2000);
   }
 
 });
