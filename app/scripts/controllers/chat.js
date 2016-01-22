@@ -157,7 +157,7 @@
     }
   };
 
-
+  
 
   
 
@@ -188,6 +188,20 @@
   }
 
   $scope.newMessage = chatService.initMessage($scope.user.uid);
+
+
+  $scope.emojiMessage = {};
+
+  $scope.emojiMessage.replyToUser = function(){
+
+    if(profile.EnterToSend && $scope.selected && profile.EnterToSend && ($scope.newMessage.text || $scope.newMessage.file)) {
+      
+      $scope.emojiMessage.messagetext = $scope.emojiMessage.rawhtml = null;
+      $('#messageDiv').html('');
+      return $scope.sendMessage($scope.newMessage,$scope.selected);
+
+    }
+  }
 
   /* To send message to chat */
   $scope.sendMessage = function(newMessage,chat_id) {

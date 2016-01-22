@@ -22,14 +22,17 @@
 							<div class="media-body">
 								<div class="chat-author-name" style="min-height:20px">
 									{{users[chat.chatWith]._name }}&nbsp;
-								</div>
-								<div class="chat-meta" style="min-height:20px">
-									<span class="chat-last-message" ng-if="chat.lastMessage.text">
-										<i class="fa fa-paperclip" ng-if="chat.lastMessage.type == 'file'"></i> {{chat.lastMessage.text | limitTo:20}}
-									</span>
 									<span class="chat-timestamp pull-right">
 										&nbsp;{{chat.modifiedAt | date:'shortTime'}}
 									</span>
+								</div>
+								<div class="chat-meta" style="min-height:20px;width:160px;overflow:hidden;display:inline-block">
+									<span class="chat-last-message" ng-if="chat.lastMessage.text" style="white-space:nowrap;">
+										<i class="fa fa-paperclip" ng-if="chat.lastMessage.type == 'file'"></i> 
+										<span ng-bind-html="chat.lastMessage.text | colonToSmiley ">
+										</span>
+									</span>
+									
 								</div>
 							</div>
 						</div>
@@ -102,8 +105,7 @@
 								</div>
 
 							</div>
-							<div class="message-body" ng-if="message.text">
-								{{message.text}}
+							<div class="message-body" ng-if="message.text" ng-bind-html="message.text  | colonToSmiley">
 							</div>
 							<div class="message-time">
 								{{message.createdAt | date:'shortTime'}}
@@ -119,9 +121,9 @@
 				</div>
 			</section>
 			<footer class="chat-send-message">
-				<form>
+				<form emoji-form emoji-message="emojiMessage">
 					<fieldset>
-						<div class="form-group" style="margin-bottom:5px">
+						<div class="form-group" style="margin-bottom:5px" >
 							<textarea class="form-control" rows="3" placeholder="Write a message..."  ng-model="newMessage.text" ng-keyup="profile.EnterToSend && $event.keyCode == 13 && selected && sendMessage(newMessage,selected)">
 							</textarea>
 						</div>
@@ -131,11 +133,16 @@
 									<input type="checkbox" name="EnterToSend" ng-model="profile.EnterToSend"> Press Enter to send &nbsp;&nbsp;
 								</label>
 							</span>
+							<div class="btn btn-default" id="emojibtn">
+								<span>
+									<i class="fa fa-smile-o"></i>
+								</span>
+							</div>
 							<button class='btn btn-default btn-file-select'>
 								{{newMessage.file.name  | limitTo:10 }} <i class="fa fa-paperclip"></i>
 								<input type="file" id="file" name="file" file-model="newMessage.file"/>
 							</button>
-							<button class="text-right btn btn-default" role="button"  ng-click="sendMessage(newMessage,selected)" ng-disabled="!(selected && (newMessage.text || newMessage.file) )">
+							<button id="submitBtn" type="submit" class="text-right btn btn-default" role="button"  ng-click="sendMessage(newMessage,selected)" ng-disabled="!(selected && (newMessage.text || newMessage.file) )">
 								<i class="fa fa-paper-plane-o"></i> Send Message
 							</button>
 						</div>

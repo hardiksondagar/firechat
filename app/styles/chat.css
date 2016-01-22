@@ -135,7 +135,7 @@ html,body
 .message-body
 {
 	display: inline-block;
-	padding: .1em .5em;
+	padding: .5em .5em;
 	border-radius: 1em;
 	text-shadow: 0 1px 1px white;
 	background-color: #F5F4F1;
@@ -143,6 +143,8 @@ html,body
 	box-shadow: 0 1px 1px 0 #CDCDCA;
 	overflow: hidden;
 	color:#333;
+	word-break: break-word;
+
 }
 
 .message-file
@@ -209,19 +211,19 @@ html,body
 }
 
 ::-webkit-scrollbar {
-  width: 0.5em;
-  height: 0.5em;
+	width: 0.5em;
+	height: 0.5em;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: slategray;
+	background: slategray;
 }
 
 ::-webkit-scrollbar-track {
-  background: #b8c0c8;
+	background: #b8c0c8;
 }
 
 body {
-  scrollbar-face-color: slategray;
-  scrollbar-track-color: #b8c0c8;
+	scrollbar-face-color: slategray;
+	scrollbar-track-color: #b8c0c8;
 }

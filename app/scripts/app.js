@@ -19,7 +19,8 @@ angular.module('chatApp', [
     'firebase.ref',
     'firebase.auth',
     'angucomplete-alt',
-    'ui.bootstrap'
+    'ui.bootstrap',
+    'emojiApp'
     ]);
 
 
