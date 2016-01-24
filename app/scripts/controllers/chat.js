@@ -113,8 +113,7 @@
   }
 
 
-  $scope.searchResponse = {hits:{}};
-  $scope.userslist = {};
+  $scope.userslist = {hits:{}};
   $scope.minlength = 2;
   $scope.watchSearchResultInit = false;
   $scope.$broadcast('angucomplete-alt:clearInput');
@@ -124,12 +123,25 @@
     var words = false;
     searchService.searchUser('firebase',searchService.buildQuery(term, words))
     .then(function(response){
-      $scope.searchResponse = response;
-      if(typeof $scope.searchResponse.hits == "undefined") {
-        $scope.searchResponse.hits = {};
+
+      $scope.userslist = response;
+      $scope.watchSearchUsers();
+      if(typeof $scope.userslist.hits == "undefined") {
+        $scope.userslist.hits = {};
       }
     });
 
+  }
+
+  $scope.watchSearchUsers = function() {
+    $scope.userslist.$watch(function(event){
+      if(typeof $scope.userslist.hits == "undefined") {
+        $scope.userslist.hits = {};
+      }
+      $('angucomplete').blur();
+      $('angucomplete').focus();
+      console.log(event);
+    });
   }
 
   var promise = null;
@@ -195,7 +207,7 @@
   $scope.emojiMessage.replyToUser = function(){
 
     if(profile.EnterToSend && $scope.selected && profile.EnterToSend && ($scope.newMessage.text || $scope.newMessage.file)) {
-      
+
       $scope.emojiMessage.messagetext = $scope.emojiMessage.rawhtml = null;
       $('#messageDiv').html('');
       return $scope.sendMessage($scope.newMessage,$scope.selected);
@@ -205,19 +217,20 @@
 
   /* To send message to chat */
   $scope.sendMessage = function(newMessage,chat_id) {
+   $scope.emojiMessage.messagetext = $scope.emojiMessage.rawhtml = null;
+   $('#messageDiv').html('');
+   $scope.loading.send = true;
 
-    $scope.loading.send = true;
+   $scope.newMessage = chatService.initMessage($scope.user.uid);
 
-    $scope.newMessage = chatService.initMessage($scope.user.uid);
-
-    chatService.sendMessage(newMessage,chat_id).then(function(ref){
-      console.log("new message added with id "+ ref.key());
-      $scope.loading.send = false;
-    },function(error){
-      alert(error);
-      $scope.loading.send = false;
-    })
-    return;
-  };
+   chatService.sendMessage(newMessage,chat_id).then(function(ref){
+    console.log("new message added with id "+ ref.key());
+    $scope.loading.send = false;
+  },function(error){
+    alert(error);
+    $scope.loading.send = false;
+  })
+   return;
+ };
 
 });
