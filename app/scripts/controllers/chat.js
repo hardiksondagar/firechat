@@ -131,67 +131,64 @@
         console.log('result loaded',data);
       });
     });
-
   }
 
-}
+  var promise = null;
 
-var promise = null;
+  $scope.inputChangeHandler = function(str) {
+    if(str && str.length >= $scope.minlength) {
 
-$scope.inputChangeHandler = function(str) {
-  if(str && str.length >= $scope.minlength) {
+      if(promise) { 
+        $timeout.cancel(promise);
+      }
 
-    if(promise) { 
-      $timeout.cancel(promise);
+      promise = $timeout(function(){
+        $scope.searchUser(str)
+      }, 600);
+
     }
+  }
 
-    promise = $timeout(function(){
-      $scope.searchUser(str)
-    }, 600);
+  $scope.selectedUser = function(user) {
+    if (user) {
+      var chat_id = chatService.getChatId(user.originalObject._id,$scope.user.uid);
+      $scope.selectChat(chat_id);
+    } else {
+      console.log('cleared');
+    }
+  };
+
+
+
+
+
+
+  /* Start New Chat Ends*/
+
+
+
+
+
+  /* This function is use to select chat  */
+  $scope.selectChat = function(chat_id)
+  {
+    /* store selected chat id */
+    $scope.selected=chat_id;
+    $scope.loading.messages=true;
+
+    /* fetch messages of selected chat */
+    $scope.messages[chat_id]= chatService.getChatMessages(chat_id); 
+
+    $scope.messages[chat_id].$loaded().then(function() {
+      $scope.loading.messages=false;
+    }, function(error){
+      alert(error);
+      $scope.loading.messages=false;
+    }).catch(alert);
 
   }
-}
 
-$scope.selectedUser = function(user) {
-  if (user) {
-    var chat_id = chatService.getChatId(user.originalObject._id,$scope.user.uid);
-    $scope.selectChat(chat_id);
-  } else {
-    console.log('cleared');
-  }
-};
-
-
-
-
-
-
-/* Start New Chat Ends*/
-
-
-
-
-
-/* This function is use to select chat  */
-$scope.selectChat = function(chat_id)
-{
-  /* store selected chat id */
-  $scope.selected=chat_id;
-  $scope.loading.messages=true;
-
-  /* fetch messages of selected chat */
-  $scope.messages[chat_id]= chatService.getChatMessages(chat_id); 
-
-  $scope.messages[chat_id].$loaded().then(function() {
-    $scope.loading.messages=false;
-  }, function(error){
-    alert(error);
-    $scope.loading.messages=false;
-  }).catch(alert);
-
-}
-
-$scope.newMessage = chatService.initMessage($scope.user.uid);
+  $scope.newMessage = chatService.initMessage($scope.user.uid);
 
   // $scope.emojiMessage.messagetext = $scope.emojiMessage.rawhtml = null;
   $('#messageDiv').html('');
