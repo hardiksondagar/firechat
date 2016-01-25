@@ -31,7 +31,7 @@
       .$add(newRequest)
       .then(function(ref){
         console.log('Search query requested at '+ ref.key());
-        defer.resolve($firebaseObject(firebaseDataService.search.child('response').child(ref.key())));
+        defer.resolve($firebaseArray(firebaseDataService.search.child('response').child(ref.key()).child('hits')));
       },function(error){
         defer.reject(error);
       });

@@ -52,6 +52,7 @@
 							</div>
 						</div>
 						<div class="form-horizontal" ng-if="!selected">
+						{{userslist}}
 							<div class="form-group form-group-sm">
 								<label class="col-sm-2 control-label">TO</label>
 								<div class="col-sm-10">
@@ -60,7 +61,7 @@
 									placeholder="Type the name of a person"
 									pause="1000"
 									selected-object="selectedUser"
-									local-data="userslist.hits"
+									local-data="userslist"
 									search-fields="_source.first_name,_source.last_name"
 									title-field="_source.first_name,_source.last_name"
 									minlength="2"
