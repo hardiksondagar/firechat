@@ -81,6 +81,9 @@
 						<h5 style="margin-top:25%;color:#aaa">No messages found <i class="fa fa-frown-o"></i></h5>
 					</div>
 					<div ng-repeat="message in messages[selected]" ng-repeat-directive>
+						<div class="text-center" ng-if="!$index || messages[$index]!=messages[$index-1]">
+							<small>{{message.createdAt | date:'MMMM d, y'}}</small>
+						</div>
 						<div class="media">
 							<div class="media-left" ng-if="users[message.uid].$id != user.uid">
 								<img class="media-object message-author-img" alt="{{users[message.uid]._name}}" style="width: 35px; height: 35px;" ng-src="{{users[message.uid]._image}}">
