@@ -23,8 +23,7 @@
     }
 
     function list(searchQuery) {
-      // return $firebaseArray(firebaseDataService.users.limitToLast(10));
-      return new UserArrayFactory(firebaseDataService.users.limitToLast(10));
+      return new UserArrayFactory(firebaseDataService.users.limitToLast(20));
       
     }
   }

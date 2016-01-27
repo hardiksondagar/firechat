@@ -554,19 +554,26 @@ function link(scope, elem, attrs, ctrl) {
           scope.$apply(function() {
             var matches;
             if (typeof scope.localSearch() !== 'undefined') {
-             scope.localSearch()(str).then(function(response){
-              response.$loaded(function(data){
+
+              scope.localSearch()(str).then(function(response){
+               response.$watch(function(event) {
                 scope.searching = false;
-                matches=data;
-                processResults(matches, str);
+                processResults(response, str);
               });
+
+            //  response.$loaded(function(data){
+            //   scope.searching = false;
+            //   matches=angular.copy(data);
+            //   console.log(matches);
+            //   processResults(matches, str);
+            // });
             });
-           } else {
-            matches = getLocalResults(str);
-            scope.searching = false;
-            processResults(matches, str);
-          }
-        });
+            } else {
+              matches = getLocalResults(str);
+              scope.searching = false;
+              processResults(matches, str);
+            }
+          });
         }
         else if (scope.remoteApiHandler) {
           getRemoteResultsWithCustomHandler(str);

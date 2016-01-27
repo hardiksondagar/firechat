@@ -115,7 +115,7 @@
 							</div>
 						</div>
 						<div class="media-right" ng-if="users[message.uid].$id==user.uid">
-							<img class="media-object message-author-img" alt="{{users[message.uid]._name}}" style="width: 35px; height: 35px;" ng-src="{{users[message.uid]._image}}">
+							<img class="media-object message-author-img" alt="{{users[message.uid]._name}}" style="width: 35px; height: 35px;" ng-src="{{users[message.uid]._image}}" image-on-load-directive data-islast="{{$last}}">
 						</div>
 					</div>
 				</div>

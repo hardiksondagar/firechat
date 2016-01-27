@@ -166,7 +166,7 @@
 
     function updateUserChat(uid,chat_id,lastMessage) {
       var ref = firebaseDataService.user_chats.child(uid).child(chat_id);
-      ref.set({
+      ref.update({
         modifiedAt:Firebase.ServerValue.TIMESTAMP,
         lastMessage:lastMessage
       });
