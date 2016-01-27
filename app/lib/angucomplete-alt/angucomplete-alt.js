@@ -7,9 +7,8 @@
 
  /*! Copyright (c) 2014 Hidenari Nozaki and contributors | Licensed under the MIT license */
 
- 'use strict';
-
  (function (root, factory) {
+  'use strict';
   if (typeof module !== 'undefined' && module.exports) {
     // CommonJS
     module.exports = factory(require('angular'));
@@ -21,6 +20,7 @@
     factory(root.angular);
   }
 }(window, function (angular) {
+  'use strict';
 
   angular.module('angucomplete-alt', []).directive('angucompleteAlt', ['$q', '$parse', '$http', '$sce', '$timeout', '$templateCache', '$interpolate', function ($q, $parse, $http, $sce, $timeout, $templateCache, $interpolate) {
     // keyboard events
@@ -46,7 +46,7 @@
     // Set the default template for this directive
     $templateCache.put(TEMPLATE_URL,
       '<div class="angucomplete-holder" ng-class="{\'angucomplete-dropdown-visible\': showDropdown}">' +
-      '  <input id="{{id}}_value" name="{{inputName}}" ng-class="{\'angucomplete-input-not-empty\': notEmpty}" ng-model="searchStr" ng-disabled="disableInput" type="{{inputType}}" placeholder="{{placeholder}}" maxlength="{{maxlength}}" ng-focus="onFocusHandler()" class="{{inputClass}}" ng-focus="resetHideResults()" ng-blur="hideResults($event)" autocapitalize="off" autocorrect="off" autocomplete="off" ng-change="inputChangeHandler(searchStr)"/>' +
+      '  <input id="{{id}}_value" name="{{inputName}}" tabindex="{{fieldTabindex}}" ng-class="{\'angucomplete-input-not-empty\': notEmpty}" ng-model="searchStr" ng-disabled="disableInput" type="{{inputType}}" placeholder="{{placeholder}}" maxlength="{{maxlength}}" ng-focus="onFocusHandler()" class="{{inputClass}}" ng-focus="resetHideResults()" ng-blur="hideResults($event)" autocapitalize="off" autocorrect="off" autocomplete="off" ng-change="inputChangeHandler(searchStr)"/>' +
       '  <div id="{{id}}_dropdown" class="angucomplete-dropdown" ng-show="showDropdown">' +
       '    <div class="angucomplete-searching" ng-show="searching" ng-bind="textSearching"></div>' +
       '    <div class="angucomplete-searching" ng-show="!searching && (!results || results.length == 0)" ng-bind="textNoResults"></div>' +
@@ -113,14 +113,6 @@ function link(scope, elem, attrs, ctrl) {
       }
       else {
         handleRequired(true);
-      }
-    }
-  });
-
-   scope.$watch('localData', function(newval, oldval) {
-    if (newval !== oldval) {
-      if (newval) {
-        showAll();
       }
     }
   });
@@ -520,7 +512,7 @@ function link(scope, elem, attrs, ctrl) {
         }
 
         function getLocalResults(str) {
-          var i, match, s, value, combinedValue, 
+          var i, match, s, value,
           searchFields = scope.searchFields.split(','),
           matches = [];
           if (typeof scope.parseInput() !== 'undefined') {
@@ -529,22 +521,16 @@ function link(scope, elem, attrs, ctrl) {
           for (i = 0; i < scope.localData.length; i++) {
             match = false;
 
-            combinedValue = '';
             for (s = 0; s < searchFields.length; s++) {
               value = extractValue(scope.localData[i], searchFields[s]) || '';
               match = match || (value.toString().toLowerCase().indexOf(str.toString().toLowerCase()) >= 0);
-              combinedValue = combinedValue + value;
             }
 
-            match = match || (combinedValue.toString().toLowerCase().replace(/ /g,'').indexOf(str.toString().toLowerCase().replace(/ /g,'')) >= 0);
-            
             if (match) {
               matches[matches.length] = scope.localData[i];
             }
           }
-
-          scope.searching = false;
-          processResults(matches, str);
+          return matches;
         }
 
         function checkExactMatch(result, obj, str){
@@ -563,10 +549,24 @@ function link(scope, elem, attrs, ctrl) {
         if (!str || str.length < minlength) {
           return;
         }
+
         if (scope.localData) {
           scope.$apply(function() {
-            getLocalResults(str);
-          });
+            var matches;
+            if (typeof scope.localSearch() !== 'undefined') {
+             scope.localSearch()(str).then(function(response){
+              response.$loaded(function(data){
+                scope.searching = false;
+                matches=data;
+                processResults(matches, str);
+              });
+            });
+           } else {
+            matches = getLocalResults(str);
+            scope.searching = false;
+            processResults(matches, str);
+          }
+        });
         }
         else if (scope.remoteApiHandler) {
           getRemoteResultsWithCustomHandler(str);
@@ -635,8 +635,6 @@ function link(scope, elem, attrs, ctrl) {
         getRemoteResults('');
       }
     }
-
-
 
     scope.onFocusHandler = function() {
       if (scope.focusIn) {
@@ -790,6 +788,7 @@ function link(scope, elem, attrs, ctrl) {
         disableInput: '=',
         initialValue: '=',
         localData: '=',
+        localSearch: '&',
         remoteUrlRequestFormatter: '=',
         remoteUrlRequestWithCredentials: '@',
         remoteUrlResponseFormatter: '=',
@@ -816,6 +815,7 @@ function link(scope, elem, attrs, ctrl) {
         autoMatch: '@',
         focusOut: '&',
         focusIn: '&',
+        fieldTabindex: '@',
         inputName: '@',
         focusFirst: '@',
         parseInput: '&'

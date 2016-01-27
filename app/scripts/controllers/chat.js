@@ -47,8 +47,6 @@
   $scope.chats.$watch(function(event) {
 
     if(event.event=="child_changed" && event.key==$scope.selected){
-      console.log(event);
-      console.log($scope.selected);
       chatService.markReadUserChat($scope.user.uid,event.key);
     }
     $scope.loadChatDetails(event.key);
@@ -126,36 +124,12 @@
   $scope.watchSearchResultInit = false;
   $scope.$broadcast('angucomplete-alt:clearInput');
 
-  $scope.searchUser = function(term){
 
+  // Here is a naive implementation for matching first name, last name, or full name
+  $scope.localSearch = function(str) {
     var words = false;
-    searchService.searchUser('firebase',searchService.buildQuery(term, words))
-    .then(function(response){
-
-      response.$loaded(function(data){
-        $scope.userslist = data;
-        $('angucomplete').blur();
-        $('angucomplete').focus();
-        console.log('result loaded',data);
-      });
-    });
-  }
-
-  var promise = null;
-
-  $scope.inputChangeHandler = function(str) {
-    if(str && str.length >= $scope.minlength) {
-
-      if(promise) { 
-        $timeout.cancel(promise);
-      }
-
-      promise = $timeout(function(){
-        $scope.searchUser(str)
-      }, 600);
-
-    }
-  }
+    return searchService.searchUser('firebase',searchService.buildQuery(str, words));
+  };
 
   $scope.selectedUser = function(user) {
     if (user) {
@@ -165,11 +139,6 @@
       console.log('cleared');
     }
   };
-
-
-
-
-
 
   /* Start New Chat Ends*/
 
