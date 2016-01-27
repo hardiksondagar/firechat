@@ -16,7 +16,9 @@
       getChatMessages : getChatMessages,
       sendMessage : sendMessage,
       updateModifiedAt : updateModifiedAt,
-      initMessage:initMessage
+      initMessage:initMessage,
+      markReadUserChat:markReadUserChat,
+      getUnreadChatCount:getUnreadChatCount
     };
 
     return service;
@@ -144,7 +146,7 @@
     }
 
     function updateModifiedAt(chat_id,message) {
-      
+
       var lastMessage = { text:null, type:null };
 
       if(message.file) {
@@ -157,7 +159,7 @@
 
       var uid = getUserFromChatId(chat_id, message.uid);
 
-      updateUserChat(uid,chat_id,lastMessage);
+      updateUserChatWithUnread(uid,chat_id,lastMessage);
       updateUserChat(message.uid,chat_id,lastMessage);
 
     }
@@ -168,6 +170,32 @@
         modifiedAt:Firebase.ServerValue.TIMESTAMP,
         lastMessage:lastMessage
       });
+    }
+
+    function updateUserChatWithUnread(uid,chat_id,lastMessage) {
+
+      var ref = firebaseDataService.user_chats.child(uid).child(chat_id);
+      ref.transaction(function(data) {
+        var unread_count = (!data || typeof data.unread_count == "undefined" ) ? 1: parseInt(data.unread_count)+1;
+        return {
+          modifiedAt:Firebase.ServerValue.TIMESTAMP,
+          lastMessage:lastMessage,
+          unread_count:unread_count
+        }
+      });
+    }
+
+    function markReadUserChat(uid,chat_id) {
+
+      var ref = firebaseDataService.user_chats.child(uid).child(chat_id).child('unread_count');
+      ref.transaction(function(unread_count) {
+        return 0;
+      });
+
+    }
+
+    function getUnreadChatCount(uid){
+      return  $firebaseArray(firebaseDataService.user_chats.child(uid).orderByChild('unread_count').startAt(1));
     }
 
     function initMessage(uid){

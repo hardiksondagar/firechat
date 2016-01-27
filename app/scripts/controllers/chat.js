@@ -32,10 +32,8 @@
   var profile = $firebaseObject(Ref.child('users/'+user.uid));
   profile.$bindTo($scope, 'profile');
 
+
   /* Firebase USER actions ends*/
-
-
-
 
 
   /* Firebase CHAT actions */
@@ -47,7 +45,17 @@
 
   /* on chat list load fetch all the related details like chat's members, member's user details etc */
   $scope.chats.$watch(function(event) {
+
+    if(event.event=="child_changed" && event.key==$scope.selected){
+      console.log(event);
+      console.log($scope.selected);
+      chatService.markReadUserChat($scope.user.uid,event.key);
+    }
     $scope.loadChatDetails(event.key);
+  });
+
+  $scope.$on('$destroy', function () {
+    $scope.selected=null;
   });
 
 
@@ -181,12 +189,15 @@
 
     $scope.messages[chat_id].$loaded().then(function() {
       $scope.loading.messages=false;
+      chatService.markReadUserChat($scope.user.uid,chat_id);
     }, function(error){
       alert(error);
       $scope.loading.messages=false;
     }).catch(alert);
 
   }
+
+
 
   $scope.newMessage = chatService.initMessage($scope.user.uid);
 

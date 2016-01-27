@@ -118,7 +118,6 @@ function link(scope, elem, attrs, ctrl) {
   });
 
    scope.$watch('localData', function(newval, oldval) {
-    console.log(newval);
     if (newval !== oldval) {
       if (newval) {
         showAll();

@@ -32,6 +32,7 @@
 										<span ng-bind-html="chat.lastMessage.text | colonToSmiley ">
 										</span>
 									</span>
+									<span class="pull-right badge" ng-if="chat.unread_count">{{chat.unread_count}}</span>
 									
 								</div>
 							</div>

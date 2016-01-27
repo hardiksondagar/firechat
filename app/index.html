@@ -11,11 +11,13 @@
   <link rel="stylesheet" href="bower_components/angular-emoji-popup/dist/css/emoji.min.css" />
   <!-- endbower -->
   <!-- endbuild -->
+
+  
+  
   <!-- build:css(.tmp) styles/main.css -->
+  <link href="lib/angucomplete-alt/angucomplete-alt.css" rel="stylesheet">
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
-  
-  <link href="lib/angucomplete-alt/angucomplete-alt.css" rel="stylesheet">
   
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/chat.css">
@@ -46,9 +48,12 @@
 
               <ul class="nav navbar-nav">
                 <li><a href="#/">Home</a></li>
-                <!-- //angularfire -->
-                <li><a ng-href="#/chat"><i class="fa fa-inbox"></i> Inbox</a></li>
+                
+                <li><a ng-href="#/chat"><i class="fa fa-inbox"></i> Inbox 
+                <ng-unread-chat-count></ng-unread-chat-count>
+                </a></li>
                 <li ng-show-auth="" ><a ng-href="#/advisors"><i class="fa fa-user"></i> Advisors</a></li>
+                
                 <li>
                   <a ng-hide-auth="" href="#/login">Login</a>
                   <a ng-show-auth="" href="#/account">Account</a>
@@ -99,11 +104,13 @@
      <script src="bower_components/angular-emoji-popup/dist/js/emoji.min.js"></script>
      <!-- endbower -->
      <!-- endbuild -->
+     
+
+     <!-- build:js({.tmp,app}) scripts/scripts.js -->
      <script src="lib/angucomplete-alt/angucomplete-alt.js"></script>
      <script src="lib/ui-bootstrap-custom-build/ui-bootstrap-custom-1.1.0.js"></script>
      <script src="lib/ui-bootstrap-custom-build/ui-bootstrap-custom-tpls-1.1.0.min.js"></script>
 
-     <!-- build:js({.tmp,app}) scripts/scripts.js -->
      <script src="scripts/app.js"></script>
      
      <script src="scripts/angularfire/config.js"></script>
@@ -137,6 +144,7 @@
      <script src="scripts/directives/fileModel.js"></script>
      <script src="scripts/directives/imageOnLoadDirective.js"></script>
      <script src="scripts/directives/ngRepeatDirective.js"></script>
+     <script src="scripts/directives/ngUnreadChatCount.js"></script>
      
      <script src="scripts/routes.js"></script>
      <!-- endbuild -->
