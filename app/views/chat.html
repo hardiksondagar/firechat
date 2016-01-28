@@ -14,29 +14,31 @@
 
 				<div class="chat-list">
 					<div ng-repeat="chat in chats | conversation:search:users | reverse " ng-click="$parent.selectChat(chat.$id);" ng-class="{'selected':$parent.selected==chat.$id}" ng-init="$index==0 && !$parent.selected && $parent.selectChat(chat.$id)" ng-show="users[chat.chatWith].first_name">
-						<div class="media chat">
-							<div class="media-left">
-								<img class="media-object chat-author-img" alt="{{users[chat.chatWith]}}" style="width: 35px; height: 35px;" ng-src="{{users[chat.chatWith]._image}}
-								">
-							</div>
-							<div class="media-body">
-								<div class="chat-author-name" style="min-height:20px">
-									{{users[chat.chatWith]._name }}&nbsp;
-									<span class="chat-timestamp pull-right">
-										&nbsp;{{chat.modifiedAt | date:'shortTime'}}
-									</span>
+						<a href="#/chat/{{chat.$id}}">
+							<div class="media chat">
+								<div class="media-left">
+									<img class="media-object chat-author-img" alt="{{users[chat.chatWith]}}" style="width: 35px; height: 35px;" ng-src="{{users[chat.chatWith]._image}}
+									">
 								</div>
-								<div class="chat-meta" style="min-height:20px;width:160px;overflow:hidden;display:inline-block">
-									<span class="chat-last-message" ng-if="chat.lastMessage.text" style="white-space:nowrap;">
-										<i class="fa fa-paperclip" ng-if="chat.lastMessage.type == 'file'"></i> 
-										<span ng-bind-html="chat.lastMessage.text | colonToSmiley ">
+								<div class="media-body">
+									<div class="chat-author-name" style="min-height:20px">
+										{{users[chat.chatWith]._name }}&nbsp;
+										<span class="chat-timestamp pull-right">
+											&nbsp;{{chat.modifiedAt | date:'shortTime'}}
 										</span>
-									</span>
-									<span class="pull-right badge" ng-if="chat.unread_count">{{chat.unread_count}}</span>
-									
+									</div>
+									<div class="chat-meta" style="min-height:20px;width:160px;overflow:hidden;display:inline-block">
+										<span class="chat-last-message" ng-if="chat.lastMessage.text" style="white-space:nowrap;">
+											<i class="fa fa-paperclip" ng-if="chat.lastMessage.type == 'file'"></i> 
+											<span ng-bind-html="chat.lastMessage.text | colonToSmiley ">
+											</span>
+										</span>
+										<span class="pull-right badge" ng-if="chat.unread_count">{{chat.unread_count}}</span>
+
+									</div>
 								</div>
 							</div>
-						</div>
+						</a>
 					</div>
 				</div>
 			</aside>

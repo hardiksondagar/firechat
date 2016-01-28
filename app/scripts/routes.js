@@ -61,8 +61,11 @@
       templateUrl: 'views/main.html',
       controller: 'MainCtrl'
     })
-
     .whenAuthenticated('/chat', {
+      templateUrl: 'views/chat.html',
+      controller: 'ChatCtrl'
+    })
+    .whenAuthenticated('/chat/:chatId', {
       templateUrl: 'views/chat.html',
       controller: 'ChatCtrl'
     })

@@ -6,7 +6,8 @@
  * # ChatCtrl
  */
  angular.module('chatApp')
- .controller('ChatCtrl', function ($scope, user, Ref, $q, $firebaseArray, $firebaseObject, $timeout, chatService, userService, searchService) {
+ .controller('ChatCtrl', function ($scope, user, Ref, $q, $firebaseArray, $firebaseObject, $timeout, chatService, userService, searchService, $routeParams) {
+
 
 
   /* Firebase USER actions */
@@ -46,6 +47,9 @@
   /* on chat list load fetch all the related details like chat's members, member's user details etc */
   $scope.chats.$watch(function(event) {
 
+    if($routeParams.chatId == event.key && event.key != $scope.selected){
+      $scope.selectChat($routeParams.chatId);    
+    }
     if(event.event=="child_changed" && event.key==$scope.selected){
       chatService.markReadUserChat($scope.user.uid,event.key);
     }
@@ -98,7 +102,9 @@
 
   
   /* $scope.selected used to determine which chat is currently selected */
+
   $scope.selected = null;
+
 
   /* $scope.messages stores all chat's messages */
   $scope.messages = {};

@@ -152,9 +152,11 @@
       if(message.file) {
         lastMessage.type = 'file';
         lastMessage.text = message.file.name;
+        lastMessage.uid = message.uid;
       } else {
         lastMessage.type = 'text';
         lastMessage.text = message.text;
+        lastMessage.uid = message.uid;
       }
 
       var uid = getUserFromChatId(chat_id, message.uid);

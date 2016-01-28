@@ -7,7 +7,7 @@
  * to be initialized so there is no initial flashing of incorrect state.
  */
  angular.module('chatApp')
- .directive('ngUnreadChatCount', ['$timeout' ,'Auth', 'chatService', function ($timeout, Auth, chatService) {
+ .directive('ngUnreadChatCount', ['$timeout' ,'Auth', 'chatService', 'userService', function ($timeout, Auth, chatService, userService) {
   'use strict';
 
   return {
@@ -22,6 +22,23 @@
         function update(authData) {
           if(authData){
             scope.unreadChat=chatService.getUnreadChatCount(authData.uid);
+            scope.unreadChat.$watch(function(event){
+
+              if(event.event=='child_added' || event.event=='child_changed' ){
+
+                var chat = scope.unreadChat[scope.unreadChat.$indexFor(event.key)];
+
+                userService.get(chat.lastMessage.uid).$loaded(function(user){
+                  var notification = { 
+                    sender : user._name, 
+                    body: chat.lastMessage.text , 
+                    chat_id:event.key, 
+                    icon: user._image
+                  };
+                  notifyMe(notification);
+                });
+              }
+            });
           }
           // sometimes if ngCloak exists on same element, they argue, so make sure that
           // this one always runs last for reliability
