@@ -55,7 +55,7 @@
     }
 
     function getChatMessages(chat_id) {
-      return $firebaseArray(firebaseDataService.chat_messages.child(chat_id).orderByChild('createdAt').limitToLast(10));
+      return $firebaseArray(firebaseDataService.chat_messages.child(chat_id).orderByChild('createdAt').limitToLast(30));
     }
 
     function sendMessage(newMessage,chat_id) {
