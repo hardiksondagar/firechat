@@ -227,3 +227,7 @@ body {
 	scrollbar-face-color: slategray;
 	scrollbar-track-color: #b8c0c8;
 }
+
+#emojibtn {
+	z-index:9999;
+}
