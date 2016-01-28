@@ -45,7 +45,8 @@
               this._name = ucfirst(this.first_name) + ' ' + ucfirst(this.last_name);
             }
             
-            if(!this._image) {
+            this._image=this.photo;
+            if(!this._image && !this.photo) {
               this._image = 'https://placeholdit.imgix.net/~text?bg=f27373&txtclr=ffffff&txt='+ ucfirst(this.first_name.charAt(0))+'&w=50&h=50&txtsize=24';
             }
 
