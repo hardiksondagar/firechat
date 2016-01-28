@@ -45,3 +45,8 @@ var getIndexIfObjWithOwnAttr = function(array, attr, value) {
     }
     return -1;
 }
+
+
+String.prototype.capitalizeFirstLetter = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
